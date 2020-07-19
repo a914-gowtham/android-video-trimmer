@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">VideoTrimmer</string>
+    <string name="txt_empty" />
+    <string name="txt_done">Done</string>
+    <string name="txt_gallery">Open Gallery</string>
+    <string name="txt_take_camera">Take Camera</string>
+    <string name="txt_select_video">Select video</string>
+    <string name="hint_min_gap">Enter min duration(in secs)</string>
+    <string name="hint_min_max">Min duration(in secs)</string>
+    <string name="txt_min_max">Selet video-minGap to maxgap trim</string>
+    <string name="txt_option">Options</string>
+    <string name="txt_max_duration_secs">Max duration(in secs)</string>
+    <string name="txt_enter_fixed_trim_duration_in_secs">Enter fixed trim duration(in secs)</string>
+
+</resources>

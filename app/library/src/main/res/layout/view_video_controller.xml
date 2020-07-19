@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/LView"
+    android:layout_gravity="bottom"
+    android:layout_marginBottom="60dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    tools:ignore="ContentDescription,UnusedAttribute">
+
+    <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+        android:id="@+id/range_seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:bar_color="@android:color/transparent"
+        app:bar_highlight_color="@android:color/transparent"
+        app:data_type="_integer"
+        android:elevation="4dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_alignParentTop="true"
+        android:padding="4dp"
+        app:left_thumb_image="@drawable/ic_min_seek"
+        app:right_thumb_image="@drawable/ic_max_seek"
+        />
+
+    <com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        app:bar_color="@android:color/transparent"
+        app:bar_highlight_color="@android:color/transparent"
+        app:left_thumb_image="@drawable/ic_vertical_line"
+        android:id="@+id/seekbar_controller"
+        android:elevation="4dp"
+        android:padding="8dp"
+        />
+
+    <LinearLayout
+        style="@style/LView"
+        android:id="@+id/view_image"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp">
+
+        <ImageView
+            android:id="@+id/image_one"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_two"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_three"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_four"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_five"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_six"
+            style="@style/ImageTrim"/>
+
+        <ImageView
+            android:id="@+id/image_seven"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_eight"
+            style="@style/ImageTrim" />
+    </LinearLayout>
+</RelativeLayout>

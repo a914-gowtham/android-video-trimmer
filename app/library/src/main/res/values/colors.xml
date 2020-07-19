@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorTrimmerPrimary">#6200EE</color>
+    <color name="colorTrimmerPrimaryDark">#000</color>
+    <color name="colorAccent">#3580FF</color>
+    <color name="colorTheme">#3580FF</color>
+    <color name="colorSkyTheme">#4A90E2</color>
+    <color name="colorWhite">#fff</color>
+    <color name="colorBlack">#000</color>
+    <color name="colorTxt">#212121</color>
+    <color name="colorHint">#707070</color>
+    <color name="colorPrimaryLt">#615C5585</color>
+    <color name="colorBlackLt">#80000000</color>
+    <color name="colorWhiteLt">#80FFFFFF</color>
+    <color name="colorThemeRed">#F00606</color>
+    <color name="colorDefaultBg">#f8f9fa</color>
+    <color name="colorGreyLt">#AD87868A</color>
+</resources>

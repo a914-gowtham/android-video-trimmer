@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <androidx.core.widget.NestedScrollView
+        style="@style/VView">
+
+        <LinearLayout
+            style="@style/VView"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <VideoView
+                android:id="@+id/video_view"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_default_trim"
+                style="@style/BtnStyle"
+                android:text="Selet video-default trim" />
+
+            <EditText
+                android:id="@+id/edt_fixed_gap"
+                style="@style/EdtStyle"
+                android:hint="@string/txt_enter_fixed_trim_duration_in_secs" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_fixed_gap"
+                style="@style/BtnStyle"
+                android:text="Selet video-fixedgap trim" />
+
+
+            <EditText
+                android:id="@+id/edt_min_gap"
+                style="@style/EdtStyle"
+                android:hint="@string/hint_min_gap" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_min_gap"
+                style="@style/BtnStyle"
+                android:text="Selet video-minGap trim" />
+
+            <LinearLayout style="@style/LView">
+
+                <EditText
+                    android:id="@+id/edt_min_from"
+                    style="@style/EdtStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:hint="@string/hint_min_max" />
+
+                <EditText
+                    android:id="@+id/edt_max_to"
+                    style="@style/EdtStyle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:hint="@string/txt_max_duration_secs" />
+            </LinearLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_min_max_gap"
+                style="@style/BtnStyle"
+                android:layout_marginBottom="15dp"
+                android:text="@string/txt_min_max" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

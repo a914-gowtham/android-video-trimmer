@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/StyleRoot"
+    android:background="#303030"
+    tools:ignore="ContentDescription">
+
+    <LinearLayout
+        style="@style/FView">
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:id="@+id/toolbar"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:background="#212121"
+            android:layout_height="?attr/actionBarSize"/>
+
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:id="@+id/player_view"
+            style="@style/VWView"
+            app:use_controller="false"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
+    <ImageView
+        style="@style/WView"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_video_play"
+        android:padding="12dp"
+        android:visibility="gone"
+        android:background="@drawable/shape_circle"
+        android:id="@+id/image_play_pause"
+        />
+
+    <include
+        layout="@layout/view_video_controller"/>
+
+    <TextView
+        style="@style/TxtRgStyle"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="40dp"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:textColor="#80FFFFFF"
+        android:id="@+id/txt_start_duration"
+        />
+
+
+    <TextView
+        style="@style/TxtRgStyle"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="10dp"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:textColor="#80FFFFFF"
+        android:id="@+id/txt_end_duration"
+        android:layout_marginBottom="40dp"
+        />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

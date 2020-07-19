@@ -1,0 +1,10 @@
+<resources>
+    <string name="txt_empty" />
+    <string name="txt_done">Done</string>
+    <string name="txt_title_not_supported">Alert!</string>
+    <string name="txt_msg_not_supported">Sorry, this device is not supported</string>
+    <string name="txt_trimming_video">Trimming Video…</string>
+    <string name="txt_failed_to_trim">Failed to trim</string>
+    <string name="txt_cancel">Cancel</string>
+    <string name="txt_smaller">Video should smaller than</string>
+</resources>
