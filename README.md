@@ -21,7 +21,7 @@ allprojects {
 	}
 }
 ```
-2. Add the code for open Trimmer Activity.
+2. Add the code for opening Trim Activity.
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
 intent.putExtra(Constants.TRIM_VIDEO_URI,videoUri);
