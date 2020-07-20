@@ -29,7 +29,7 @@ allprojects {
 2. Add the code for opening Trim Activity.
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(Constants.TRIM_VIDEO_URI,videoUri);
+intent.putExtra(Constants.TRIM_VIDEO_URI,String.valueOf(videoUri));
 intent.putExtra(Constants.DESTINATION,"/storage/emulated/0/DCIM/MYFOLDER"); //optional default output path /storage/emulated/0/DOWNLOADS
 startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
 ```
@@ -55,7 +55,7 @@ intent.putExtra(Constants.HIDE_PLAYER_SEEKBAR,true);
 * TrimType Default
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(Constants.TRIM_VIDEO_URI,videoUri);
+intent.putExtra(Constants.TRIM_VIDEO_URI,String.valueOf(videoUri));
 intent.putExtra(Constants.TRIM_TYPE,0); //optional: it will take by default
 startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
 ```
@@ -63,7 +63,7 @@ startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
 * TrimType FixedGap(fixed duration trim)
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(Constants.TRIM_VIDEO_URI,data);
+intent.putExtra(Constants.TRIM_VIDEO_URI,String.valueOf(videoUri));
 intent.putExtra(Constants.TRIM_TYPE,1);
 intent.putExtra(Constants.FIXED_GAP_DURATION,30L); //in secs
 startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
@@ -72,7 +72,7 @@ startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
 * TrimType MinDuration
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(Constants.TRIM_VIDEO_URI,data);
+intent.putExtra(Constants.TRIM_VIDEO_URI,String.valueOf(videoUri));
 intent.putExtra(Constants.TRIM_TYPE,2);
 intent.putExtra(Constants.MIN_GAP_DURATION,30L); //in secs
 startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
@@ -81,7 +81,7 @@ startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
 * TrimType Min-Max Duration
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(Constants.TRIM_VIDEO_URI,data);
+intent.putExtra(Constants.TRIM_VIDEO_URI,String.valueOf(videoUri));
 intent.putExtra(Constants.TRIM_TYPE,3);
 intent.putExtra(Constants.MIN_FROM_DURATION,30L); //in secs
 intent.putExtra(Constants.MAX_TO_DURATION,30L); //in secs
