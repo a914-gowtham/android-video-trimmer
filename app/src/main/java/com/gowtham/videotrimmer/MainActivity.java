@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (trimType==0){
             Intent intent=new Intent(this,ActVideoTrimmer.class);
             intent.putExtra(Constants.TRIM_VIDEO_URI,data);
+            intent.putExtra(Constants.HIDE_PLAYER_SEEKBAR,true);
             intent.putExtra(Constants.DESTINATION,"/storage/emulated/0/DCIM/MYFOLDER");
             startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
         }else if (trimType==1){

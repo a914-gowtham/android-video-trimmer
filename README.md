@@ -40,7 +40,14 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
         }
 }
 ```
-## Custom TrimTypes
+## Customization
+
+* Hide Player seekbar
+```java
+intent.putExtra(Constants.HIDE_PLAYER_SEEKBAR,true);
+```
+
+### Custom TrimTypes
 
 * TrimType Default
 ```java

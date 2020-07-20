@@ -102,6 +102,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private long fixedGap, minGap, minFromGap, maxToGap;
 
+    private boolean hidePlayerSeek;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,6 +181,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             minFromGap = getIntent().getLongExtra(Constants.MIN_FROM_DURATION, totalDuration);
             maxToGap = getIntent().getLongExtra(Constants.MAX_TO_DURATION, totalDuration);
             destinationPath = getIntent().getStringExtra(Constants.DESTINATION);
+            hidePlayerSeek = getIntent().getBooleanExtra(Constants.HIDE_PLAYER_SEEKBAR,false);
             validate();
             imagePlayPause.setOnClickListener(v ->
                     onVideoClicked());
@@ -312,6 +315,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 seekbar.setGap(2).apply();
                 lastMaxValue = totalDuration;
             }
+            if (hidePlayerSeek)
+                seekbarController.setVisibility(View.GONE);
 
             seekbar.setOnRangeSeekbarChangeListener((minValue, maxValue) -> {
                 long minVal = (long) minValue;
