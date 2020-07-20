@@ -13,7 +13,7 @@
 1. Include the library as local library project.
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.0.0'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.0.1'
  }
  ```
 ```gradle
