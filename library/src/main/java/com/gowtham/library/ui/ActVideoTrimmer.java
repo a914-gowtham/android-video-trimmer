@@ -467,7 +467,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     System.currentTimeMillis() + "." + TrimmerUtils.getFileExtension(this, uri));
             outputPath = String.valueOf(newFile);
             LogMessage.v("outputPath::" + outputPath);
-            String[] complexCommand = {"-y", "-i", String.valueOf(uri), "-ss", "" + lastMinValue, "-t", "" + (lastMaxValue - lastMinValue), "-c", "copy", outputPath};
+            String[] complexCommand={ "-ss",TrimmerUtils.formatCSeconds(lastMinValue),"-i",String.valueOf(uri),"-to",TrimmerUtils.formatCSeconds(lastMaxValue-lastMinValue),"-c","copy",outputPath};
 //            String[] complexCommand1 = {"-ss", "" + lastMinValue, "-y", "-i", String.valueOf(uri), "-t", "" + (lastMaxValue - lastMinValue), "-s", "320x240", "-r", "15", "-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", outputPath};
             execFFmpegBinary(complexCommand);
         } else
