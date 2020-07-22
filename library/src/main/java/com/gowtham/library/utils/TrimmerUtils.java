@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
@@ -15,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 public class TrimmerUtils {
 
@@ -46,11 +49,36 @@ public class TrimmerUtils {
         return isAllGranted;
     }
 
+/*    public static String getvideoPath(Context context, Uri contentUri) {
+        String path = context.getPackageName() + ".fileprovider";
+        if (contentUri.toString().contains(path))
+            return contentUri.getPath();
+        else {
+            String result;
+            Cursor cursor = context.getContentResolver().query(contentUri,
+                    null, null, null, null);
+            if (cursor == null)
+                result = contentUri.getPath();
+            else {
+                cursor.moveToFirst();
+                result = cursor.getString(cursor.getColumnIndex(MediaStore
+                        .Video.Media.RELATIVE_PATH));
+    *//*            result = cursor.getString(cursor.getColumnIndex(MediaStore
+                        .Video.Media.RELATIVE_PATH));*//*
+                cursor.close();
+            }
+            LogMessage.v("Result path:: "+result);
+            return result;
+        }
+    }*/
+
     public static String getvideoPath(Context context, Uri uri) {
         try {
             Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
             cursor.moveToFirst();
             String document_id = cursor.getString(0);
+            LogMessage.v("Document Id:: "+document_id);
+            if(document_id!=null){
             document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
             cursor.close();
             cursor = context.getContentResolver().query(
@@ -59,12 +87,26 @@ public class TrimmerUtils {
             cursor.moveToFirst();
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
             cursor.close();
-
             return path;
+            }else
+                return getPath(context,uri);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return String.valueOf(uri);
+    }
+
+    private static String getPath(Context context,Uri uri){
+        try {
+            String[] proj = { MediaStore.Video.Media.DATA };
+            Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
+            cursor.moveToFirst();
+            String document_id = cursor.getString(0);
+            return document_id;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String formatCSeconds(long timeInSeconds) {

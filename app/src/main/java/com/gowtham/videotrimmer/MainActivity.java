@@ -21,6 +21,11 @@ import android.widget.VideoView;
 import com.cocosw.bottomsheet.BottomSheet;
 import com.gowtham.library.ui.ActVideoTrimmer;
 import com.gowtham.library.utils.Constants;
+import com.gowtham.library.utils.LogMessage;
+import com.gowtham.library.utils.TrimmerUtils;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -65,7 +70,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             videoView.requestFocus();
             videoView.start();
         }else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
-            openTrimActivity(String.valueOf(data.getData()));
+            if (data.getData()!=null){
+                LogMessage.v("Video path:: "+data.getData());
+                openTrimActivity(String.valueOf(data.getData()));
+            }else{
+                Toast.makeText(this,"video uri is null",Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -74,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent=new Intent(this,ActVideoTrimmer.class);
             intent.putExtra(Constants.TRIM_VIDEO_URI,data);
             intent.putExtra(Constants.HIDE_PLAYER_SEEKBAR,true);
-            intent.putExtra(Constants.DESTINATION,"/storage/emulated/0/DCIM/MYFOLDER");
+            intent.putExtra(Constants.DESTINATION,"/storage/emulated/0/DCIM/TESTFOLDER");
             startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
         }else if (trimType==1){
             Intent intent=new Intent(this,ActVideoTrimmer.class);
@@ -236,6 +246,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return isAllGranted;
     }
-
-
 }

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,19 +24,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.arthenica.mobileffmpeg.Config;
+import com.arthenica.mobileffmpeg.FFmpeg;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
-import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -57,6 +54,10 @@ import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
+
+import static com.arthenica.mobileffmpeg.FFmpeg.RETURN_CODE_CANCEL;
+import static com.arthenica.mobileffmpeg.FFmpeg.RETURN_CODE_SUCCESS;
+
 
 public class ActVideoTrimmer extends AppCompatActivity {
 
@@ -90,7 +91,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private Handler seekHandler;
 
-    private FFmpeg ffmpeg;
+    private int currentCommand;
 
     private long currentDuration;
 
@@ -135,7 +136,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 imageFour, imageFive, imageSix, imageSeven, imageEight};
         seekHandler = new Handler();
         initPlayer();
-        loadFFMpegBinary();
+//        loadFFMpegBinary();
 
         String uriStr = getIntent().getStringExtra(Constants.TRIM_VIDEO_URI);
         if (uriStr == null)
@@ -175,13 +176,14 @@ public class ActVideoTrimmer extends AppCompatActivity {
             uri = Uri.parse(getIntent().getStringExtra(Constants.TRIM_VIDEO_URI));
             uri = Uri.parse(TrimmerUtils.getvideoPath(this, uri));
             totalDuration = TrimmerUtils.getVideoDuration(this, uri);
+            LogMessage.v("total duration::" + totalDuration);
             trimType = getIntent().getIntExtra(Constants.TRIM_TYPE, 0);
             fixedGap = getIntent().getLongExtra(Constants.FIXED_GAP_DURATION, totalDuration);
             minGap = getIntent().getLongExtra(Constants.MIN_GAP_DURATION, totalDuration);
             minFromGap = getIntent().getLongExtra(Constants.MIN_FROM_DURATION, totalDuration);
             maxToGap = getIntent().getLongExtra(Constants.MAX_TO_DURATION, totalDuration);
             destinationPath = getIntent().getStringExtra(Constants.DESTINATION);
-            hidePlayerSeek = getIntent().getBooleanExtra(Constants.HIDE_PLAYER_SEEKBAR,false);
+            hidePlayerSeek = getIntent().getBooleanExtra(Constants.HIDE_PLAYER_SEEKBAR, false);
             validate();
             imagePlayPause.setOnClickListener(v ->
                     onVideoClicked());
@@ -210,10 +212,10 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 throw new IllegalArgumentException("Min_from_duration must be smaller than Max_to_duration" + " " +
                         Constants.MIN_FROM_DURATION + ":" + minFromGap + " " +
                         Constants.MAX_TO_DURATION + ":" + maxToGap);
-        }else if (destinationPath!=null){
-            File outputDir= new File(destinationPath);
+        } else if (destinationPath != null) {
+            File outputDir = new File(destinationPath);
             outputDir.mkdirs();
-            destinationPath= String.valueOf(outputDir);
+            destinationPath = String.valueOf(outputDir);
             if (!outputDir.isDirectory())
                 throw new IllegalArgumentException("Destination file path error" + " " + destinationPath);
         }
@@ -375,11 +377,12 @@ public class ActVideoTrimmer extends AppCompatActivity {
         }
     }
 
-    private void loadFFMpegBinary() {
+/*    private void loadFFMpegBinary() {
         try {
-            if (ffmpeg == null) {
+            if (fFmpeg == null) {
                 LogMessage.v("ffmpeg : null");
-                ffmpeg = FFmpeg.getInstance(this);
+                fFmpeg=FFmpeg.
+                fFmpeg = FFmpeg.getInstance(this);
             }
             ffmpeg.loadBinary(new LoadBinaryResponseHandler() {
                 @Override
@@ -399,7 +402,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         } catch (Exception e) {
             LogMessage.v("Exception:: " + e.getMessage());
         }
-    }
+    }*/
 
 
     @Override
@@ -431,6 +434,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
         super.onDestroy();
         if (videoPlayer != null)
             videoPlayer.release();
+        if (alertDialog != null && alertDialog.isShowing())
+            alertDialog.dismiss();
         stopRepeatingTask();
     }
 
@@ -461,47 +466,17 @@ public class ActVideoTrimmer extends AppCompatActivity {
         if (isValidVideo) {
             String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
             if (destinationPath != null)
-                path= destinationPath;
+                path = destinationPath;
 
             File newFile = new File(path + File.separator +
                     System.currentTimeMillis() + "." + TrimmerUtils.getFileExtension(this, uri));
             outputPath = String.valueOf(newFile);
             LogMessage.v("outputPath::" + outputPath);
-            String[] complexCommand={ "-ss",TrimmerUtils.formatCSeconds(lastMinValue),"-i",String.valueOf(uri),"-to",TrimmerUtils.formatCSeconds(lastMaxValue-lastMinValue),"-c","copy",outputPath};
-//            String[] complexCommand1 = {"-ss", "" + lastMinValue, "-y", "-i", String.valueOf(uri), "-t", "" + (lastMaxValue - lastMinValue), "-s", "320x240", "-r", "15", "-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", outputPath};
-            execFFmpegBinary(complexCommand);
-        } else
-            Toast.makeText(this,getString(R.string.txt_smaller) + " " + maxToGap + "Secs",Toast.LENGTH_SHORT).show();
-
-    }
-
-    private void execFFmpegBinary(final String[] command) {
-        try {
-            ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
-                @Override
-                public void onSuccess(String message) {
-                    LogMessage.v("FFmpeg onSuccess:: " + message);
-                }
-
-                @Override
-                public void onProgress(String message) {
-                    LogMessage.v("FFmpeg onProgress:: " + message);
-                }
-
-                @Override
-                public void onFailure(String message) {
-                    alertDialog.dismiss();
-                    Toast.makeText(ActVideoTrimmer.this, R.string.txt_failed_to_trim,Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onStart() {
-                    videoPlayer.setPlayWhenReady(false);
-                    showProcessingDialog();
-                }
-
-                @Override
-                public void onFinish() {
+            String[] complexCommand = {"-ss", TrimmerUtils.formatCSeconds(lastMinValue), "-i", String.valueOf(uri), "-to", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), "-c", "copy", outputPath};
+            currentCommand= FFmpeg.execute(complexCommand);
+            videoPlayer.setPlayWhenReady(false);
+            showProcessingDialog();
+            if (currentCommand == RETURN_CODE_SUCCESS) {
                     new Handler().postDelayed(() -> {
                         alertDialog.dismiss();
                         Intent intent = new Intent();
@@ -509,13 +484,19 @@ public class ActVideoTrimmer extends AppCompatActivity {
                         setResult(RESULT_OK, intent);
                         finish();
                     }, 1000);
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
-        }
-    }
+            } else if (currentCommand == RETURN_CODE_CANCEL)
+                if(alertDialog.isShowing())
+                    alertDialog.dismiss();
+             else {
+                    if(alertDialog.isShowing())
+                        alertDialog.dismiss();
+                Toast.makeText(ActVideoTrimmer.this, R.string.txt_failed_to_trim,Toast.LENGTH_SHORT).show();
+                Log.i(Config.TAG, String.format("Command execution failed with rc=%d and the output below.", currentCommand));
+            }
+        } else
+            Toast.makeText(this, getString(R.string.txt_smaller) + " " + maxToGap + "Secs", Toast.LENGTH_SHORT).show();
 
+    }
 
     private void showProcessingDialog() {
         try {
@@ -525,11 +506,10 @@ public class ActVideoTrimmer extends AppCompatActivity {
             dialogBuilder.setView(R.layout.alert_convert);
             TextView txtCancel = dialogView.findViewById(R.id.txt_cancel);
             alertDialog = dialogBuilder.create();
-
+            alertDialog.setCancelable(false);
             txtCancel.setOnClickListener(v -> {
                 alertDialog.dismiss();
-                if (ffmpeg.isFFmpegCommandRunning())
-                    ffmpeg.killRunningProcesses();
+                    FFmpeg.cancel();
             });
             alertDialog.show();
         } catch (Exception e) {
@@ -537,23 +517,13 @@ public class ActVideoTrimmer extends AppCompatActivity {
         }
     }
 
-
-    private void showUnSupportedDialog() {
-        try {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.txt_title_not_supported)
-                    .setMessage(R.string.txt_msg_not_supported)
-                    .setCancelable(false)
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> finish())
-                    .show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private boolean checkStoragePermission() {
-        return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_MEDIA_LOCATION);
+        } else
+            return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
     private boolean checkPermission(String... permissions) {
@@ -570,6 +540,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 PER_REQ_CODE);
         return false;
     }
+
 
     private boolean isPermissionOk(int... results) {
         boolean isAllGranted = true;
