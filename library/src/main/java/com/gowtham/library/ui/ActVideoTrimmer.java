@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,8 +27,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.arthenica.mobileffmpeg.Config;
-import com.arthenica.mobileffmpeg.FFmpeg;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
@@ -50,13 +47,14 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.gowtham.library.R;
 import com.gowtham.library.utils.Constants;
+import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 
-import static com.arthenica.mobileffmpeg.FFmpeg.RETURN_CODE_CANCEL;
-import static com.arthenica.mobileffmpeg.FFmpeg.RETURN_CODE_SUCCESS;
+import Jni.FFmpegCmd;
+import VideoHandle.OnEditorListener;
 
 
 public class ActVideoTrimmer extends AppCompatActivity {
@@ -136,7 +134,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 imageFour, imageFive, imageSix, imageSeven, imageEight};
         seekHandler = new Handler();
         initPlayer();
-//        loadFFMpegBinary();
 
         String uriStr = getIntent().getStringExtra(Constants.TRIM_VIDEO_URI);
         if (uriStr == null)
@@ -170,11 +167,11 @@ public class ActVideoTrimmer extends AppCompatActivity {
         }
     }
 
-
     private void setDataInView() {
         try {
             uri = Uri.parse(getIntent().getStringExtra(Constants.TRIM_VIDEO_URI));
-            uri = Uri.parse(TrimmerUtils.getvideoPath(this, uri));
+            uri = Uri.parse(FileUtils.getPath(this,uri));
+            LogMessage.v("VideoUri:: "+uri);
             totalDuration = TrimmerUtils.getVideoDuration(this, uri);
             LogMessage.v("total duration::" + totalDuration);
             trimType = getIntent().getIntExtra(Constants.TRIM_TYPE, 0);
@@ -377,34 +374,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
         }
     }
 
-/*    private void loadFFMpegBinary() {
-        try {
-            if (fFmpeg == null) {
-                LogMessage.v("ffmpeg : null");
-                fFmpeg=FFmpeg.
-                fFmpeg = FFmpeg.getInstance(this);
-            }
-            ffmpeg.loadBinary(new LoadBinaryResponseHandler() {
-                @Override
-                public void onFailure() {
-                    showUnSupportedDialog();
-                    LogMessage.v("Ffmpeg Failed");
-                }
-
-                @Override
-                public void onSuccess() {
-                    LogMessage.v("Ffmpeg loaded successfully");
-                }
-            });
-        } catch (FFmpegNotSupportedException e) {
-            LogMessage.v("FFmpegNotSupportedException:: " + e.getMessage());
-            showUnSupportedDialog();
-        } catch (Exception e) {
-            LogMessage.v("Exception:: " + e.getMessage());
-        }
-    }*/
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -472,27 +441,35 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     System.currentTimeMillis() + "." + TrimmerUtils.getFileExtension(this, uri));
             outputPath = String.valueOf(newFile);
             LogMessage.v("outputPath::" + outputPath);
-            String[] complexCommand = {"-ss", TrimmerUtils.formatCSeconds(lastMinValue), "-i", String.valueOf(uri), "-to", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), "-c", "copy", outputPath};
-            currentCommand= FFmpeg.execute(complexCommand);
+            String[] complexCommand = {"ffmpeg","-ss",TrimmerUtils.formatCSeconds(lastMinValue)
+                    ,"-i",String.valueOf(uri),"-to",
+                    TrimmerUtils.formatCSeconds(lastMaxValue),"-c","copy",outputPath};
             videoPlayer.setPlayWhenReady(false);
             showProcessingDialog();
-            if (currentCommand == RETURN_CODE_SUCCESS) {
-                    new Handler().postDelayed(() -> {
+            FFmpegCmd.exec(complexCommand, 0, new OnEditorListener() {
+                @Override
+                public void onSuccess() {
+                    LogMessage.v("onSuccess");
                         alertDialog.dismiss();
                         Intent intent = new Intent();
                         intent.putExtra(Constants.TRIMMED_VIDEO_PATH, outputPath);
                         setResult(RESULT_OK, intent);
                         finish();
-                    }, 1000);
-            } else if (currentCommand == RETURN_CODE_CANCEL)
-                if(alertDialog.isShowing())
-                    alertDialog.dismiss();
-             else {
+                }
+
+                @Override
+                public void onFailure() {
+                    LogMessage.v("onFailure");
                     if(alertDialog.isShowing())
                         alertDialog.dismiss();
-                Toast.makeText(ActVideoTrimmer.this, R.string.txt_failed_to_trim,Toast.LENGTH_SHORT).show();
-                Log.i(Config.TAG, String.format("Command execution failed with rc=%d and the output below.", currentCommand));
-            }
+                }
+
+                @Override
+                public void onProgress(float progress) {
+                    LogMessage.v("onProgress");
+
+                }
+            });
         } else
             Toast.makeText(this, getString(R.string.txt_smaller) + " " + maxToGap + "Secs", Toast.LENGTH_SHORT).show();
 
@@ -507,10 +484,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             TextView txtCancel = dialogView.findViewById(R.id.txt_cancel);
             alertDialog = dialogBuilder.create();
             alertDialog.setCancelable(false);
-            txtCancel.setOnClickListener(v -> {
-                alertDialog.dismiss();
-                    FFmpeg.cancel();
-            });
+            txtCancel.setOnClickListener(v -> alertDialog.dismiss());
             alertDialog.show();
         } catch (Exception e) {
             e.printStackTrace();

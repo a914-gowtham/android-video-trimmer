@@ -62,20 +62,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constants.REQ_CODE_VIDEO_TRIMMER && data != null) {
-            Uri uri = Uri.parse(data.getStringExtra(Constants.TRIMMED_VIDEO_PATH));
-            Log.d(TAG,"Trimmed path:: "+uri);
-            videoView.setMediaController(mediaController);
-            videoView.setVideoURI(uri);
-            videoView.requestFocus();
-            videoView.start();
-        }else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
-            if (data.getData()!=null){
-                LogMessage.v("Video path:: "+data.getData());
-                openTrimActivity(String.valueOf(data.getData()));
-            }else{
-                Toast.makeText(this,"video uri is null",Toast.LENGTH_SHORT).show();
+        try {
+            if (requestCode == Constants.REQ_CODE_VIDEO_TRIMMER && data != null) {
+                Uri uri = Uri.parse(data.getStringExtra(Constants.TRIMMED_VIDEO_PATH));
+                Log.d(TAG,"Trimmed path:: "+uri);
+                videoView.setMediaController(mediaController);
+                videoView.setVideoURI(uri);
+                videoView.requestFocus();
+                videoView.start();
+            }else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
+                if (data.getData()!=null){
+                    LogMessage.v("Video path:: "+data.getData());
+                    openTrimActivity(String.valueOf(data.getData()));
+                }else{
+                    Toast.makeText(this,"video uri is null",Toast.LENGTH_SHORT).show();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
