@@ -462,6 +462,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     LogMessage.v("onFailure");
                     if(alertDialog.isShowing())
                         alertDialog.dismiss();
+                    runOnUiThread(() ->
+                            Toast.makeText(ActVideoTrimmer.this,"Failed to trim",Toast.LENGTH_SHORT).show());
                 }
 
                 @Override
