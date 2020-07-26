@@ -11,14 +11,14 @@
         />
 
     <TextView
-        style="@style/TxtSemiSmallStyle"
+        style="@style/TxtSemiSmallStyle22"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
         android:textColor="@color/colorWhite"
         android:text="@string/txt_trimming_video"/>
 
     <TextView
-        style="@style/TxtSemiSmallStyle"
+        style="@style/TxtSemiSmallStyle22"
         android:layout_gravity="end"
         android:layout_marginTop="5dp"
         android:padding="6dp"

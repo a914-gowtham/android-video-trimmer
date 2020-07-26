@@ -20,12 +20,8 @@ import android.widget.VideoView;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.gowtham.library.ui.ActVideoTrimmer;
-import com.gowtham.library.utils.Constants;
+import com.gowtham.library.utils.TrimmerConstants;
 import com.gowtham.library.utils.LogMessage;
-import com.gowtham.library.utils.TrimmerUtils;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -63,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            if (requestCode == Constants.REQ_CODE_VIDEO_TRIMMER && data != null) {
-                Uri uri = Uri.parse(data.getStringExtra(Constants.TRIMMED_VIDEO_PATH));
+            if (requestCode == TrimmerConstants.REQ_CODE_VIDEO_TRIMMER && data != null) {
+                Uri uri = Uri.parse(data.getStringExtra(TrimmerConstants.TRIMMED_VIDEO_PATH));
                 Log.d(TAG,"Trimmed path:: "+uri);
                 videoView.setMediaController(mediaController);
                 videoView.setVideoURI(uri);
@@ -86,29 +82,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void openTrimActivity(String data) {
         if (trimType==0){
             Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(Constants.TRIM_VIDEO_URI,data);
-            intent.putExtra(Constants.HIDE_PLAYER_SEEKBAR,true);
-            intent.putExtra(Constants.DESTINATION,"/storage/emulated/0/DCIM/TESTFOLDER");
-            startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
+            intent.putExtra(TrimmerConstants.HIDE_PLAYER_SEEKBAR,true);
+            intent.putExtra(TrimmerConstants.DESTINATION,"/storage/emulated/0/DCIM/TESTFOLDER");
+            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
         }else if (trimType==1){
             Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(Constants.TRIM_VIDEO_URI,data);
-            intent.putExtra(Constants.TRIM_TYPE,1);
-            intent.putExtra(Constants.FIXED_GAP_DURATION,getEdtValueLong(edtFixedGap));
-            startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
+            intent.putExtra(TrimmerConstants.TRIM_TYPE,1);
+            intent.putExtra(TrimmerConstants.FIXED_GAP_DURATION,getEdtValueLong(edtFixedGap));
+            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
         }else if (trimType==2){
             Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(Constants.TRIM_VIDEO_URI,data);
-            intent.putExtra(Constants.TRIM_TYPE,2);
-            intent.putExtra(Constants.MIN_GAP_DURATION,getEdtValueLong(edtMinGap));
-            startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
+            intent.putExtra(TrimmerConstants.TRIM_TYPE,2);
+            intent.putExtra(TrimmerConstants.MIN_GAP_DURATION,getEdtValueLong(edtMinGap));
+            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
         }else{
             Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(Constants.TRIM_VIDEO_URI,data);
-            intent.putExtra(Constants.TRIM_TYPE,3);
-            intent.putExtra(Constants.MIN_FROM_DURATION,getEdtValueLong(edtMinFrom));
-            intent.putExtra(Constants.MAX_TO_DURATION,getEdtValueLong(edtMAxTo));
-            startActivityForResult(intent,Constants.REQ_CODE_VIDEO_TRIMMER);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
+            intent.putExtra(TrimmerConstants.TRIM_TYPE,3);
+            intent.putExtra(TrimmerConstants.MIN_FROM_DURATION,getEdtValueLong(edtMinFrom));
+            intent.putExtra(TrimmerConstants.MAX_TO_DURATION,getEdtValueLong(edtMAxTo));
+            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.gowtham.library.utils;
 
-public class Constants {
+public class TrimmerConstants {
 
     public static final String TRIMMED_VIDEO_PATH = "trimmed_video_path",
             TRIM_VIDEO_URI = "trim_video_uri", TRIM_TYPE = "trim_type",

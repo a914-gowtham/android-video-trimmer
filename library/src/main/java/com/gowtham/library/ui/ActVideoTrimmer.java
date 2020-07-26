@@ -46,7 +46,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.gowtham.library.R;
-import com.gowtham.library.utils.Constants;
+import com.gowtham.library.utils.TrimmerConstants;
 import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimmerUtils;
@@ -116,7 +116,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        playerView = findViewById(R.id.player_view);
+        playerView = findViewById(R.id.player_view_lib);
         imagePlayPause = findViewById(R.id.image_play_pause);
         seekbar = findViewById(R.id.range_seek_bar);
         txtStartDuration = findViewById(R.id.txt_start_duration);
@@ -135,7 +135,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         seekHandler = new Handler();
         initPlayer();
 
-        String uriStr = getIntent().getStringExtra(Constants.TRIM_VIDEO_URI);
+        String uriStr = getIntent().getStringExtra(TrimmerConstants.TRIM_VIDEO_URI);
         if (uriStr == null)
             throw new NullPointerException("VideoUri can't be null");
         else if (checkStoragePermission())
@@ -169,18 +169,18 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void setDataInView() {
         try {
-            uri = Uri.parse(getIntent().getStringExtra(Constants.TRIM_VIDEO_URI));
+            uri = Uri.parse(getIntent().getStringExtra(TrimmerConstants.TRIM_VIDEO_URI));
             uri = Uri.parse(FileUtils.getPath(this,uri));
             LogMessage.v("VideoUri:: "+uri);
             totalDuration = TrimmerUtils.getVideoDuration(this, uri);
             LogMessage.v("total duration::" + totalDuration);
-            trimType = getIntent().getIntExtra(Constants.TRIM_TYPE, 0);
-            fixedGap = getIntent().getLongExtra(Constants.FIXED_GAP_DURATION, totalDuration);
-            minGap = getIntent().getLongExtra(Constants.MIN_GAP_DURATION, totalDuration);
-            minFromGap = getIntent().getLongExtra(Constants.MIN_FROM_DURATION, totalDuration);
-            maxToGap = getIntent().getLongExtra(Constants.MAX_TO_DURATION, totalDuration);
-            destinationPath = getIntent().getStringExtra(Constants.DESTINATION);
-            hidePlayerSeek = getIntent().getBooleanExtra(Constants.HIDE_PLAYER_SEEKBAR, false);
+            trimType = getIntent().getIntExtra(TrimmerConstants.TRIM_TYPE, 0);
+            fixedGap = getIntent().getLongExtra(TrimmerConstants.FIXED_GAP_DURATION, totalDuration);
+            minGap = getIntent().getLongExtra(TrimmerConstants.MIN_GAP_DURATION, totalDuration);
+            minFromGap = getIntent().getLongExtra(TrimmerConstants.MIN_FROM_DURATION, totalDuration);
+            maxToGap = getIntent().getLongExtra(TrimmerConstants.MAX_TO_DURATION, totalDuration);
+            destinationPath = getIntent().getStringExtra(TrimmerConstants.DESTINATION);
+            hidePlayerSeek = getIntent().getBooleanExtra(TrimmerConstants.HIDE_PLAYER_SEEKBAR, false);
             validate();
             imagePlayPause.setOnClickListener(v ->
                     onVideoClicked());
@@ -207,8 +207,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 throw new IllegalArgumentException("Min_from_duration and Max_to_duration are same..you could use Fixed gap");
             else if (minFromGap > maxToGap)
                 throw new IllegalArgumentException("Min_from_duration must be smaller than Max_to_duration" + " " +
-                        Constants.MIN_FROM_DURATION + ":" + minFromGap + " " +
-                        Constants.MAX_TO_DURATION + ":" + maxToGap);
+                        TrimmerConstants.MIN_FROM_DURATION + ":" + minFromGap + " " +
+                        TrimmerConstants.MAX_TO_DURATION + ":" + maxToGap);
         } else if (destinationPath != null) {
             File outputDir = new File(destinationPath);
             outputDir.mkdirs();
@@ -452,7 +452,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     LogMessage.v("onSuccess");
                         alertDialog.dismiss();
                         Intent intent = new Intent();
-                        intent.putExtra(Constants.TRIMMED_VIDEO_PATH, outputPath);
+                        intent.putExtra(TrimmerConstants.TRIMMED_VIDEO_PATH, outputPath);
                         setResult(RESULT_OK, intent);
                         finish();
                 }
