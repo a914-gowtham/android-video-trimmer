@@ -15,7 +15,7 @@
 + Add the dependency to your app `build.gradle` file
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.0.8'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.0.9'
  }
  ```
  + Add to project's root `build.gradle` file:
