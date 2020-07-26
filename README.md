@@ -38,6 +38,11 @@ startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data) {
   if (requestCode == TrimmerConstants.REQ_CODE_VIDEO_TRIMMER && data != null) {
+       /*    //checking result video duration if it needed
+                if (TrimmerUtils.getVideoDuration(this,data.getData())<=30){
+                    Toast.makeText(this,"Video should be larger than 30 secs",Toast.LENGTH_SHORT).show();
+                    return;
+                }*/
             Uri uri = Uri.parse(data.getStringExtra(TrimmerConstants.TRIMMED_VIDEO_PATH));
             Log.d(TAG,"Trimmed path:: "+uri);
         }

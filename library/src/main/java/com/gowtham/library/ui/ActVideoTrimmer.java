@@ -172,7 +172,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             uri = Uri.parse(getIntent().getStringExtra(TrimmerConstants.TRIM_VIDEO_URI));
             uri = Uri.parse(FileUtils.getPath(this,uri));
             LogMessage.v("VideoUri:: "+uri);
-            totalDuration = TrimmerUtils.getVideoDuration(this, uri);
+            totalDuration = TrimmerUtils.getDuration(this, uri);
             LogMessage.v("total duration::" + totalDuration);
             trimType = getIntent().getIntExtra(TrimmerConstants.TRIM_TYPE, 0);
             fixedGap = getIntent().getLongExtra(TrimmerConstants.FIXED_GAP_DURATION, totalDuration);
@@ -473,7 +473,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 }
             });
         } else
-            Toast.makeText(this, getString(R.string.txt_smaller) + " " + maxToGap + "Secs", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.txt_smaller) + " " +TrimmerUtils.getLimitedTimeFormatted(maxToGap), Toast.LENGTH_SHORT).show();
 
     }
 

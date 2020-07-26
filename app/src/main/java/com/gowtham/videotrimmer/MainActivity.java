@@ -22,6 +22,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 import com.gowtham.library.ui.ActVideoTrimmer;
 import com.gowtham.library.utils.TrimmerConstants;
 import com.gowtham.library.utils.LogMessage;
+import com.gowtham.library.utils.TrimmerUtils;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -67,6 +68,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 videoView.requestFocus();
                 videoView.start();
             }else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
+            /*    //check result video duration if it needed
+                if (TrimmerUtils.getVideoDuration(this,data.getData())<=30){
+                    Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
+                    return;
+                }*/
                 if (data.getData()!=null){
                     LogMessage.v("Video path:: "+data.getData());
                     openTrimActivity(String.valueOf(data.getData()));

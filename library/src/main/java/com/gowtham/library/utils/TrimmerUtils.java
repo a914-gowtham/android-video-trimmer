@@ -43,10 +43,25 @@ public class TrimmerUtils {
         return formattedTime;
     }
 
-    public static long getVideoDuration(Activity context, Uri videoPath) {
+    public static long getDuration(Activity context, Uri videoPath) {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(context, videoPath);
+            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long timeInMillisec = Long.parseLong(time);
+            retriever.release();
+            return timeInMillisec / 1000;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static long getVideoDuration(Activity context, Uri videoUri) {
+        try {
+            String videoPath = FileUtils.getPath(context,videoUri);
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context, Uri.parse(videoPath));
             String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             long timeInMillisec = Long.parseLong(time);
             retriever.release();
@@ -109,5 +124,23 @@ public class TrimmerUtils {
 
         return formattedTime;
     }
+
+    public static String getLimitedTimeFormatted(long secs){
+            long hours = secs / 3600;
+            long secondsLeft = secs - hours * 3600;
+            long minutes = secondsLeft / 60;
+            long seconds = secondsLeft - minutes * 60;
+            String time;
+            if (hours!=0){
+                time=hours+" Hrs "+(minutes!=0 ? minutes+" Mins " : "")+
+                        (seconds!=0 ? seconds+" Secs " : "");
+            }else if (minutes!=0)
+                time=minutes+" Mins "+(seconds!=0 ? seconds+" Secs ":"");
+            else
+                time=seconds+" Secs ";
+            LogMessage.v(time);
+            return time;
+    }
+
 
 }
