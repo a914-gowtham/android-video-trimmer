@@ -6,33 +6,38 @@
     android:background="#303030"
     tools:ignore="ContentDescription">
 
-    <androidx.appcompat.widget.Toolbar
-        android:layout_width="match_parent"
-        android:id="@+id/toolbar"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:background="#212121"
-        android:layout_height="?attr/actionBarSize"/>
-
     <LinearLayout
         style="@style/FView">
 
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:id="@+id/toolbar"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:background="#212121"
+            android:layout_height="?attr/actionBarSize"/>
+
+        <RelativeLayout
+            style="@style/VWView">
+
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/player_view_lib"
-            style="@style/VWView"
+            style="@style/FView"
             app:use_controller="false"
             android:layout_gravity="center_vertical"/>
 
+            <ImageView
+                style="@style/WView"
+                android:src="@drawable/ic_video_play_lib"
+                android:padding="12dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/shape_circle_lib"
+                android:id="@+id/image_play_pause"
+                />
+
+        </RelativeLayout>
     </LinearLayout>
 
-    <ImageView
-        style="@style/WView"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_video_play_lib"
-        android:padding="12dp"
-        android:visibility="gone"
-        android:background="@drawable/shape_circle_lib"
-        android:id="@+id/image_play_pause"
-        />
+
 
     <include
         layout="@layout/view_video_controller"/>
