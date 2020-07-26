@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 videoView.requestFocus();
                 videoView.start();
             }else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
-            /*    //check result video duration if it needed
+            /*    //check video duration if needed
                 if (TrimmerUtils.getVideoDuration(this,data.getData())<=30){
                     Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
                     return;
