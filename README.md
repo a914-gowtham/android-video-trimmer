@@ -88,10 +88,13 @@ intent.putExtra(TrimmerConstants.MAX_TO_DURATION,30L); //in secs
 startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
 ```
 
-# Compatibility
+## Compatibility
   
   * Library - Android Kitkat 4.4+ (API 19)
   * Sample - Android Kitkat 4.4+ (API 19)
+  
+## Support 
+Show your support by giving a star to this repository.that's how i know the usage of this library so i can try to make improvements 
   
 ## Collaboration
 There are many ways of improving and adding more features, so feel free to collaborate with ideas, issues and/or pull requests. 
