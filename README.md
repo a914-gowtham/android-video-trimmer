@@ -104,7 +104,9 @@ startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
 
 ### Version 1.0.8
   * Library size reduced 
-  * Library size : 13mb(release build)
+  * Library size : 12mb(release build)
+  * Constants class name changed into TrimmerConstants
+  * Added TrimmerUtils class which has getVideoDuration() method and some more VideoUtils methods
 
 ### Version 1.0.5
   * Fixed issue on Android Q.
