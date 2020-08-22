@@ -88,6 +88,13 @@ intent.putExtra(TrimmerConstants.MAX_TO_DURATION,30L); //in secs
 startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
 ```
 
+## Proguard Rules
+```pro
+-dontwarn com.gowtham.library**
+-keep class com.gowtham.library** { *; }
+-keep interface com.gowtham.library** { *; }
+```
+
 ## Compatibility
   
   * Library - Android Kitkat 4.4+ (API 19)
