@@ -100,6 +100,21 @@ startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
   * Library - Android Kitkat 4.4+ (API 19)
   * Sample - Android Kitkat 4.4+ (API 19)
   
+## ChangeLog
+
+### Version 1.0.8
+  * Library size reduced 
+  * Library size : 13mb(release build)
+
+### Version 1.0.5
+  * Fixed issue on Android Q.
+  * Library size : 26mb(debug build).
+  * Small UI updates.
+  * Couple new things to configure.
+
+### Version 1.0.0
+  * Initial Build
+  
 ## Support 
 Show your support by giving a star to this repository.that's how i know the usage of this library so i can try to make improvements 
   
