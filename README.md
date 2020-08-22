@@ -56,7 +56,7 @@ intent.putExtra(TrimmerConstants.HIDE_PLAYER_SEEKBAR,true);
 ```java
 Intent intent=new Intent(this,ActVideoTrimmer.class);
 intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,String.valueOf(videoUri));
-intent.putExtra(TrimmerConstants.TRIM_TYPE,0); //optional: it will take by default
+intent.putExtra(TrimmerConstants.TRIM_TYPE,0); //default
 startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
 ```
 
