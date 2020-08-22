@@ -102,7 +102,7 @@ startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
   
 ## ChangeLog
 
-### Version 1.0.8
+### Version 1.0.9
   * Library size reduced 
   * Library size : 12mb(release build)
   * Constants class name changed into TrimmerConstants
