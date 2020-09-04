@@ -8,4 +8,5 @@
     <string name="txt_cancel">Cancel</string>
     <string name="txt_dlah">\\</string>
     <string name="txt_smaller">Video should be smaller than</string>
+    <string name="edit_video">Edit Video</string>
 </resources>

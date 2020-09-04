@@ -1,4 +1,3 @@
-include ':library:joevideolib'
 include ':library'
 include ':app'
 rootProject.name = "VideoTrimmer"

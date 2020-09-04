@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,9 +45,10 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.gowtham.library.R;
-import com.gowtham.library.utils.TrimmerConstants;
+import com.gowtham.library.utils.CustomProgressView;
 import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
+import com.gowtham.library.utils.TrimmerConstants;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
@@ -89,11 +89,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private Handler seekHandler;
 
-    private int currentCommand;
-
     private long currentDuration;
-
-    private AlertDialog alertDialog;
 
     private String outputPath, destinationPath;
 
@@ -103,14 +99,19 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private boolean hidePlayerSeek;
 
+    private int frameRate, bitRate;
+
+    private CustomProgressView progressView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_video_trimmer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setUpToolBar(getSupportActionBar(), R.string.txt_empty);
+        setUpToolBar(getSupportActionBar(), "Edit Video");
         toolbar.setNavigationOnClickListener(v -> finish());
+        progressView = new CustomProgressView(this);
     }
 
     @Override
@@ -143,7 +144,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     }
 
-    private void setUpToolBar(ActionBar actionBar, int title) {
+    private void setUpToolBar(ActionBar actionBar, String title) {
         try {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
@@ -170,10 +171,11 @@ public class ActVideoTrimmer extends AppCompatActivity {
     private void setDataInView() {
         try {
             uri = Uri.parse(getIntent().getStringExtra(TrimmerConstants.TRIM_VIDEO_URI));
-            uri = Uri.parse(FileUtils.getPath(this,uri));
-            LogMessage.v("VideoUri:: "+uri);
+            uri = Uri.parse(FileUtils.getPath(this, uri));
+            LogMessage.v("VideoUri:: " + uri);
             totalDuration = TrimmerUtils.getDuration(this, uri);
-            LogMessage.v("total duration::" + totalDuration);
+            frameRate = TrimmerUtils.getFrameRate(this, uri);
+            bitRate = TrimmerUtils.getBitRate(this, uri);
             trimType = getIntent().getIntExtra(TrimmerConstants.TRIM_TYPE, 0);
             fixedGap = getIntent().getLongExtra(TrimmerConstants.FIXED_GAP_DURATION, totalDuration);
             minGap = getIntent().getLongExtra(TrimmerConstants.MIN_GAP_DURATION, totalDuration);
@@ -403,8 +405,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
         super.onDestroy();
         if (videoPlayer != null)
             videoPlayer.release();
-        if (alertDialog != null && alertDialog.isShowing())
-            alertDialog.dismiss();
+        if (progressView != null && progressView.isShowing())
+            progressView.dismiss();
         stopRepeatingTask();
     }
 
@@ -437,60 +439,48 @@ public class ActVideoTrimmer extends AppCompatActivity {
             if (destinationPath != null)
                 path = destinationPath;
 
+            int fileNo = 0;
+            String fileName = "trimmed_video_";
             File newFile = new File(path + File.separator +
-                    System.currentTimeMillis() + "." + TrimmerUtils.getFileExtension(this, uri));
+                    (fileName + fileNo) + "." + TrimmerUtils.getFileExtension(this, uri));
+            while (newFile.exists()) {
+                fileNo++;
+                newFile = new File(path + File.separator +
+                        (fileName + fileNo) + "." + TrimmerUtils.getFileExtension(this, uri));
+            }
             outputPath = String.valueOf(newFile);
             LogMessage.v("outputPath::" + outputPath);
-            String[] complexCommand = {"ffmpeg","-ss",TrimmerUtils.formatCSeconds(lastMinValue)
-                    ,"-i",String.valueOf(uri),"-to",
-                    TrimmerUtils.formatCSeconds(lastMaxValue),"-c","copy",outputPath};
             videoPlayer.setPlayWhenReady(false);
-            showProcessingDialog();
+            progressView.show();
+            String[] complexCommand = {"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
+                    , "-i", String.valueOf(uri), "-t",
+                    TrimmerUtils.formatCSeconds(lastMaxValue-lastMinValue), "-async", "1", outputPath};
             FFmpegCmd.exec(complexCommand, 0, new OnEditorListener() {
                 @Override
                 public void onSuccess() {
-                    LogMessage.v("onSuccess");
-                        alertDialog.dismiss();
-                        Intent intent = new Intent();
-                        intent.putExtra(TrimmerConstants.TRIMMED_VIDEO_PATH, outputPath);
-                        setResult(RESULT_OK, intent);
-                        finish();
+                    progressView.dismiss();
+                    Intent intent = new Intent();
+                    intent.putExtra(TrimmerConstants.TRIMMED_VIDEO_PATH, outputPath);
+                    setResult(RESULT_OK, intent);
+                    finish();
                 }
 
                 @Override
                 public void onFailure() {
-                    LogMessage.v("onFailure");
-                    if(alertDialog.isShowing())
-                        alertDialog.dismiss();
+                    if (progressView.isShowing())
+                        progressView.dismiss();
                     runOnUiThread(() ->
-                            Toast.makeText(ActVideoTrimmer.this,"Failed to trim",Toast.LENGTH_SHORT).show());
+                            Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
                 }
 
                 @Override
                 public void onProgress(float progress) {
-                    LogMessage.v("onProgress");
-
+                    LogMessage.v("Progress::" + progress + "%");
                 }
             });
         } else
-            Toast.makeText(this, getString(R.string.txt_smaller) + " " +TrimmerUtils.getLimitedTimeFormatted(maxToGap), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.txt_smaller) + " " + TrimmerUtils.getLimitedTimeFormatted(maxToGap), Toast.LENGTH_SHORT).show();
 
-    }
-
-    private void showProcessingDialog() {
-        try {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-            LayoutInflater inflater = this.getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.alert_convert, null);
-            dialogBuilder.setView(R.layout.alert_convert);
-            TextView txtCancel = dialogView.findViewById(R.id.txt_cancel);
-            alertDialog = dialogBuilder.create();
-            alertDialog.setCancelable(false);
-            txtCancel.setOnClickListener(v -> alertDialog.dismiss());
-            alertDialog.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private boolean checkStoragePermission() {
@@ -553,4 +543,5 @@ public class ActVideoTrimmer extends AppCompatActivity {
             }
         }
     };
+
 }

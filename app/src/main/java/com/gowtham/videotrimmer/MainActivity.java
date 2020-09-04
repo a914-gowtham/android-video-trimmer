@@ -1,11 +1,5 @@
 package com.gowtham.videotrimmer;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,14 +9,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.MediaController;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.cocosw.bottomsheet.BottomSheet;
 import com.gowtham.library.ui.ActVideoTrimmer;
-import com.gowtham.library.utils.TrimmerConstants;
 import com.gowtham.library.utils.LogMessage;
-import com.gowtham.library.utils.TrimmerUtils;
+import com.gowtham.library.utils.TrimmerConstants;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private MediaController mediaController;
 
-    private EditText edtFixedGap,edtMinGap, edtMinFrom, edtMAxTo;
+    private EditText edtFixedGap, edtMinGap, edtMinFrom, edtMAxTo;
 
     private int trimType;
 
@@ -43,10 +46,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         videoView = findViewById(R.id.video_view);
-        edtFixedGap=findViewById(R.id.edt_fixed_gap);
-        edtMinGap=findViewById(R.id.edt_min_gap);
-        edtMinFrom =findViewById(R.id.edt_min_from);
-        edtMAxTo =findViewById(R.id.edt_max_to);
+        edtFixedGap = findViewById(R.id.edt_fixed_gap);
+        edtMinGap = findViewById(R.id.edt_min_gap);
+        edtMinFrom = findViewById(R.id.edt_min_from);
+        edtMAxTo = findViewById(R.id.edt_max_to);
         mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
 
@@ -62,22 +65,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             if (requestCode == TrimmerConstants.REQ_CODE_VIDEO_TRIMMER && data != null) {
                 Uri uri = Uri.parse(data.getStringExtra(TrimmerConstants.TRIMMED_VIDEO_PATH));
-                Log.d(TAG,"Trimmed path:: "+uri);
+                Log.d(TAG, "Trimmed path:: " + uri);
                 videoView.setMediaController(mediaController);
                 videoView.setVideoURI(uri);
                 videoView.requestFocus();
                 videoView.start();
-            }else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
+                String filepath = String.valueOf(uri);
+                File file = new File(filepath);
+                long length = file.length();
+                Log.d(TAG, "Video size:: " + (length / 1024));
+            } else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
             /*    //check video duration if needed
                 if (TrimmerUtils.getVideoDuration(this,data.getData())<=30){
                     Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
                     return;
                 }*/
-                if (data.getData()!=null){
-                    LogMessage.v("Video path:: "+data.getData());
+                if (data.getData() != null) {
+                    LogMessage.v("Video path:: " + data.getData());
                     openTrimActivity(String.valueOf(data.getData()));
-                }else{
-                    Toast.makeText(this,"video uri is null",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "video uri is null", Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (Exception e) {
@@ -86,30 +93,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void openTrimActivity(String data) {
-        if (trimType==0){
-            Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
-            intent.putExtra(TrimmerConstants.HIDE_PLAYER_SEEKBAR,true);
-            intent.putExtra(TrimmerConstants.DESTINATION,"/storage/emulated/0/DCIM/TESTFOLDER");
+        if (trimType == 0) {
+            Intent intent = new Intent(this, ActVideoTrimmer.class);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
+            intent.putExtra(TrimmerConstants.DESTINATION, "/storage/emulated/0/DCIM/TESTFOLDER");
             startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
-        }else if (trimType==1){
-            Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
-            intent.putExtra(TrimmerConstants.TRIM_TYPE,1);
-            intent.putExtra(TrimmerConstants.FIXED_GAP_DURATION,getEdtValueLong(edtFixedGap));
+        } else if (trimType == 1) {
+            Intent intent = new Intent(this, ActVideoTrimmer.class);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
+            intent.putExtra(TrimmerConstants.TRIM_TYPE, 1);
+            intent.putExtra(TrimmerConstants.FIXED_GAP_DURATION, getEdtValueLong(edtFixedGap));
             startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
-        }else if (trimType==2){
-            Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
-            intent.putExtra(TrimmerConstants.TRIM_TYPE,2);
-            intent.putExtra(TrimmerConstants.MIN_GAP_DURATION,getEdtValueLong(edtMinGap));
+        } else if (trimType == 2) {
+            Intent intent = new Intent(this, ActVideoTrimmer.class);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
+            intent.putExtra(TrimmerConstants.TRIM_TYPE, 2);
+            intent.putExtra(TrimmerConstants.MIN_GAP_DURATION, getEdtValueLong(edtMinGap));
             startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
-        }else{
-            Intent intent=new Intent(this,ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,data);
-            intent.putExtra(TrimmerConstants.TRIM_TYPE,3);
-            intent.putExtra(TrimmerConstants.MIN_FROM_DURATION,getEdtValueLong(edtMinFrom));
-            intent.putExtra(TrimmerConstants.MAX_TO_DURATION,getEdtValueLong(edtMAxTo));
+        } else {
+            Intent intent = new Intent(this, ActVideoTrimmer.class);
+            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
+            intent.putExtra(TrimmerConstants.TRIM_TYPE, 3);
+            intent.putExtra(TrimmerConstants.MIN_FROM_DURATION, getEdtValueLong(edtMinFrom));
+            intent.putExtra(TrimmerConstants.MAX_TO_DURATION, getEdtValueLong(edtMAxTo));
             startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
         }
     }
@@ -214,17 +220,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             showVideoOptions();
     }
 
-    private boolean isEdtTxtEmpty(EditText editText){
+    private boolean isEdtTxtEmpty(EditText editText) {
         return editText.getText().toString().trim().isEmpty();
     }
 
-    private long getEdtValueLong(EditText editText){
+    private long getEdtValueLong(EditText editText) {
         return Long.parseLong(editText.getText().toString().trim());
     }
 
     private boolean checkCamStoragePer() {
         return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA);
+                Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
     }
 
     private boolean checkPermission(String... permissions) {

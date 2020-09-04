@@ -43,6 +43,10 @@ public class TrimmerUtils {
         return formattedTime;
     }
 
+    public static int getColor(Context context, int color) {
+        return ContextCompat.getColor(context, color);
+    }
+
     public static long getDuration(Activity context, Uri videoPath) {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -96,6 +100,47 @@ public class TrimmerUtils {
             Bitmap bitmap = retriever.getFrameAtTime(Long.parseLong(formatted));
             retriever.release();
             return bitmap;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static int getFrameRate(Activity context, Uri videoPath) {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context,videoPath);
+            int frameRate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
+            retriever.release();
+            return frameRate;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 30;
+    }
+
+    public static int getBitRate(Activity context, Uri videoPath) {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context, videoPath);
+            int bitRate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
+            retriever.release();
+            return bitRate;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 15;
+    }
+
+
+    public static int[] getVideoWidthHeight(Activity context, Uri videoPath) {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context,videoPath);
+            int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            retriever.release();
+            return new int[]{width,height};
         } catch (Exception e) {
             e.printStackTrace();
         }
