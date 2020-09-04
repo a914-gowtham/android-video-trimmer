@@ -452,9 +452,10 @@ public class ActVideoTrimmer extends AppCompatActivity {
             LogMessage.v("outputPath::" + outputPath);
             videoPlayer.setPlayWhenReady(false);
             progressView.show();
-            String[] complexCommand = {"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
+            String[] complexCommand = new String[]{"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
                     , "-i", String.valueOf(uri), "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue-lastMinValue), "-async", "1", outputPath};
+                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                    "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
             FFmpegCmd.exec(complexCommand, 0, new OnEditorListener() {
                 @Override
                 public void onSuccess() {
