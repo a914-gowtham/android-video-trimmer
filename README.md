@@ -7,7 +7,7 @@
 
 ![](https://github.com/a914-gowtham/Android-video-trimmer/blob/master/demo.gif)
 
-## Usage
+## How to use
 *For a working implementation, please have a look at the Sample Project*
 
 1. Include the library as local library project.
@@ -15,7 +15,7 @@
 + Add the dependency to your app `build.gradle` file
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.2.0'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.2.2'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -28,64 +28,65 @@ allprojects {
 ```
 2. Add the code for opening Trim Activity.
 ```java
-Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,String.valueOf(videoUri));
-intent.putExtra(TrimmerConstants.DESTINATION,"/storage/emulated/0/DCIM/MYFOLDER"); //optional default output path /storage/emulated/0/DOWNLOADS
-startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+TrimVideo.activity(String.valueOf(videoUri))
+          .setHideSeekBar(true)
+          .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
+          .start(this);
 ```
 3. Override `onActivityResult` method in your activity to get trim result
 ```java
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data) {
-  if (requestCode == TrimmerConstants.REQ_CODE_VIDEO_TRIMMER && data != null) {
-            Uri uri = Uri.parse(data.getStringExtra(TrimmerConstants.TRIMMED_VIDEO_PATH));
+  if (requestCode == TrimVideo.VIDEO_TRIMMER_REQ_CODE && data != null) {
+            Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(data));
             Log.d(TAG,"Trimmed path:: "+uri);
         }
 }
 ```
 ## Customization
 
+* Video trim accuracy
+Accuratecut *false* makes video trimming faster and less accuracy(approx. 1-5secs) 
+Accuratecut *true* makes video trimming slower and high accuracy
+```java
+.setAccurateCut(true) //default value is false 
+```
+
 * Hide Player seekbar
 ```java
-intent.putExtra(TrimmerConstants.HIDE_PLAYER_SEEKBAR,true);
+.setHideSeekBar(true) //default value is false 
 ```
 
 ### Custom TrimTypes
 
 * TrimType Default
 ```java
-Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,String.valueOf(videoUri));
-intent.putExtra(TrimmerConstants.TRIM_TYPE,0); //default
-startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+TrimVideo.activity(videoUri)
+          .start(this);
 ```
 
-* TrimType FixedGap(fixed duration trim)
+* TrimType Fixed Duration
 ```java
-Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,String.valueOf(videoUri));
-intent.putExtra(TrimmerConstants.TRIM_TYPE,1);
-intent.putExtra(TrimmerConstants.FIXED_GAP_DURATION,30L); //in secs
-startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+TrimVideo.activity(videoUri)
+          .setTrimType(TrimType.FIXED_DURATION)
+          .setFixedDuration(30) //seconds
+          .start(this);
 ```
 
-* TrimType MinDuration
+* TrimType Minimum Duration
 ```java
-Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,String.valueOf(videoUri));
-intent.putExtra(TrimmerConstants.TRIM_TYPE,2);
-intent.putExtra(TrimmerConstants.MIN_GAP_DURATION,30L); //in secs
-startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+TrimVideo.activity(videoUri)
+          .setTrimType(TrimType.MIN_DURATION)
+          .setMinDuration(30) //seconds
+          .start(this);
 ```
 
 * TrimType Min-Max Duration
 ```java
-Intent intent=new Intent(this,ActVideoTrimmer.class);
-intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI,String.valueOf(videoUri));
-intent.putExtra(TrimmerConstants.TRIM_TYPE,3);
-intent.putExtra(TrimmerConstants.MIN_FROM_DURATION,30L); //in secs
-intent.putExtra(TrimmerConstants.MAX_TO_DURATION,30L); //in secs
-startActivityForResult(intent,TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+TrimVideo.activity(videoUri)
+          .setTrimType(TrimType.MIN_MAX_DURATION)
+          .setMinToMax(10, 30)  //seconds
+          .start(this);
 ```
 
 ## Proguard Rules
