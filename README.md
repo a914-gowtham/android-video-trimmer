@@ -29,7 +29,6 @@ allprojects {
 2. Add the code for opening Trim Activity.
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
-          .setHideSeekBar(true)
 	  .setAccurateCut(true)
           .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
           .start(this);
