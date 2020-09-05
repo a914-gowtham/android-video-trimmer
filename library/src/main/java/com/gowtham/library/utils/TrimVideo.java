@@ -1,0 +1,111 @@
+package com.gowtham.library.utils;
+
+import android.app.Activity;
+import android.content.Intent;
+
+import androidx.annotation.Nullable;
+
+import com.gowtham.library.ui.ActVideoTrimmer;
+
+public class TrimVideo {
+
+    public static int VIDEO_TRIMMER_REQ_CODE = 324;
+
+    public static final String TRIM_VIDEO_OPTION = "trim_video_option",
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path";
+
+    public static ActivityBuilder activity(String uri) {
+        return new ActivityBuilder(uri);
+    }
+
+    public static String getTrimmedVideoPath(Intent intent){
+        return intent.getStringExtra(TRIMMED_VIDEO_PATH);
+    }
+
+    public static final class ActivityBuilder {
+
+        @Nullable
+        private final String videoUri;
+
+        private TrimVideoOptions options;
+
+        public ActivityBuilder(@Nullable String videoUri) {
+            this.videoUri = videoUri;
+            options = new TrimVideoOptions();
+            options.trimType=TrimType.DEFAULT;
+        }
+
+        public ActivityBuilder setTrimType(final TrimType trimType) {
+            options.trimType = trimType;
+            return this;
+        }
+
+        public ActivityBuilder setHideSeekBar(final boolean hide) {
+            options.hideSeekBar = hide;
+            return this;
+        }
+
+        public ActivityBuilder setAccurateCut(final boolean accurate) {
+            options.accurateCut = accurate;
+            return this;
+        }
+
+        public ActivityBuilder setMinDuration(final long minDuration) {
+            options.minDuration = minDuration;
+            return this;
+        }
+
+        public ActivityBuilder setFixedDuration(final long fixedDuration) {
+            options.fixedDuration = fixedDuration;
+            return this;
+        }
+
+        public ActivityBuilder setMinToMax(long min, long max) {
+            options.minToMax = new long[]{min, max};
+            return this;
+        }
+
+        public ActivityBuilder setDestination(final String destination) {
+            options.destination = destination;
+            return this;
+        }
+
+        public void start(Activity activity) {
+            validate();
+            activity.startActivityForResult(getIntent(activity), VIDEO_TRIMMER_REQ_CODE);
+        }
+
+        private void validate() {
+            if (videoUri == null)
+                throw new NullPointerException("VideoUri cannot be null.");
+            if (videoUri.isEmpty())
+                throw new IllegalArgumentException("VideoUri cannot be empty");
+            if (options.trimType == null)
+                throw new NullPointerException("TrimType cannot be null");
+            if (options.minDuration < 0)
+                throw new IllegalArgumentException("Cannot set min duration to a number < 1");
+            if (options.fixedDuration < 0)
+                throw new IllegalArgumentException("Cannot set fixed duration to a number < 1");
+            if (options.trimType==TrimType.MIN_MAX_DURATION && options.minToMax==null)
+                throw new IllegalArgumentException("Used trim type is TrimType.MIN_MAX_DURATION." +
+                        "Give the min and max duration");
+            if (options.minToMax != null){
+                if ((options.minToMax[0] < 0 || options.minToMax[1] < 0))
+                    throw new IllegalArgumentException("Cannot set min to max duration to a number < 1");
+                if ((options.minToMax[0] > options.minToMax[1]))
+                    throw new IllegalArgumentException("Minimum duration cannot be larger than max duration");
+                if ((options.minToMax[0] == options.minToMax[1]))
+                    throw new IllegalArgumentException("Minimum duration cannot be same as max duration.Use Fixed duration");
+            }
+        }
+
+        private Intent getIntent(Activity activity) {
+            Intent intent = new Intent(activity, ActVideoTrimmer.class);
+            intent.putExtra(TRIM_VIDEO_URI, videoUri);
+            intent.putExtra(TRIM_VIDEO_OPTION, options);
+            return intent;
+        }
+    }
+
+
+}

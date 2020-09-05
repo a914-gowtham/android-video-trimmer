@@ -61,6 +61,19 @@ public class TrimmerUtils {
         return 0;
     }
 
+    public static int getTrimType(TrimType trimType) {
+        switch (trimType) {
+            case FIXED_DURATION:
+                return 1;
+            case MIN_DURATION:
+                return 2;
+            case MIN_MAX_DURATION:
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
     public static long getVideoDuration(Activity context, Uri videoUri) {
         try {
             String videoPath = FileUtils.getPath(context,videoUri);

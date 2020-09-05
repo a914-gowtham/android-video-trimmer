@@ -20,7 +20,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -48,7 +47,8 @@ import com.gowtham.library.R;
 import com.gowtham.library.utils.CustomProgressView;
 import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
-import com.gowtham.library.utils.TrimmerConstants;
+import com.gowtham.library.utils.TrimVideo;
+import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
@@ -97,9 +97,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private long fixedGap, minGap, minFromGap, maxToGap;
 
-    private boolean hidePlayerSeek;
-
-    private int frameRate, bitRate;
+    private boolean hidePlayerSeek, isAccurateCut;
 
     private CustomProgressView progressView;
 
@@ -135,13 +133,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 imageFour, imageFive, imageSix, imageSeven, imageEight};
         seekHandler = new Handler();
         initPlayer();
-
-        String uriStr = getIntent().getStringExtra(TrimmerConstants.TRIM_VIDEO_URI);
-        if (uriStr == null)
-            throw new NullPointerException("VideoUri can't be null");
-        else if (checkStoragePermission())
+        if (checkStoragePermission())
             setDataInView();
-
     }
 
     private void setUpToolBar(ActionBar actionBar, String title) {
@@ -170,55 +163,49 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void setDataInView() {
         try {
-            uri = Uri.parse(getIntent().getStringExtra(TrimmerConstants.TRIM_VIDEO_URI));
+            uri = Uri.parse(getIntent().getStringExtra(TrimVideo.TRIM_VIDEO_URI));
             uri = Uri.parse(FileUtils.getPath(this, uri));
             LogMessage.v("VideoUri:: " + uri);
             totalDuration = TrimmerUtils.getDuration(this, uri);
-            frameRate = TrimmerUtils.getFrameRate(this, uri);
-            bitRate = TrimmerUtils.getBitRate(this, uri);
-            trimType = getIntent().getIntExtra(TrimmerConstants.TRIM_TYPE, 0);
-            fixedGap = getIntent().getLongExtra(TrimmerConstants.FIXED_GAP_DURATION, totalDuration);
-            minGap = getIntent().getLongExtra(TrimmerConstants.MIN_GAP_DURATION, totalDuration);
-            minFromGap = getIntent().getLongExtra(TrimmerConstants.MIN_FROM_DURATION, totalDuration);
-            maxToGap = getIntent().getLongExtra(TrimmerConstants.MAX_TO_DURATION, totalDuration);
-            destinationPath = getIntent().getStringExtra(TrimmerConstants.DESTINATION);
-            hidePlayerSeek = getIntent().getBooleanExtra(TrimmerConstants.HIDE_PLAYER_SEEKBAR, false);
-            validate();
             imagePlayPause.setOnClickListener(v ->
                     onVideoClicked());
             playerView.getVideoSurfaceView().setOnClickListener(v ->
                     onVideoClicked());
+            validate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void validate() {
-        if (trimType > 3 || trimType < 0)
-            throw new IllegalArgumentException("Invalid trim type" + " " + trimType);
-        else if (fixedGap <= 0)
-            throw new IllegalArgumentException("Invalid fixedgap duration" + " " + fixedGap);
-        else if (minGap <= 0)
-            throw new IllegalArgumentException("Invalid mingap duration" + " " + minGap);
-        else if (minFromGap <= 0)
-            throw new IllegalArgumentException("Invalid minFromGap duration" + " " + minFromGap);
-        else if (maxToGap <= 0)
-            throw new IllegalArgumentException("Invalid maxToGap duration" + " " + maxToGap);
-        else if (trimType == 3) {
-            if (minFromGap == maxToGap)
-                throw new IllegalArgumentException("Min_from_duration and Max_to_duration are same..you could use Fixed gap");
-            else if (minFromGap > maxToGap)
-                throw new IllegalArgumentException("Min_from_duration must be smaller than Max_to_duration" + " " +
-                        TrimmerConstants.MIN_FROM_DURATION + ":" + minFromGap + " " +
-                        TrimmerConstants.MAX_TO_DURATION + ":" + maxToGap);
-        } else if (destinationPath != null) {
-            File outputDir = new File(destinationPath);
-            outputDir.mkdirs();
-            destinationPath = String.valueOf(outputDir);
-            if (!outputDir.isDirectory())
-                throw new IllegalArgumentException("Destination file path error" + " " + destinationPath);
+        try {
+            TrimVideoOptions trimVideoOptions = getIntent().getParcelableExtra(TrimVideo.TRIM_VIDEO_OPTION);
+            assert trimVideoOptions != null;
+            trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);
+            destinationPath = trimVideoOptions.destination;
+            hidePlayerSeek = trimVideoOptions.hideSeekBar;
+            isAccurateCut = trimVideoOptions.accurateCut;
+            fixedGap = trimVideoOptions.fixedDuration;
+            fixedGap = fixedGap != 0 ? fixedGap : totalDuration;
+            minGap = trimVideoOptions.minDuration;
+            minGap = minGap != 0 ? minGap : totalDuration;
+            if (trimType == 3) {
+                minFromGap = trimVideoOptions.minToMax[0];
+                maxToGap = trimVideoOptions.minToMax[1];
+                minFromGap = minFromGap != 0 ? minFromGap : totalDuration;
+                maxToGap = maxToGap != 0 ? maxToGap : totalDuration;
+            }
+            if (destinationPath != null) {
+                File outputDir = new File(destinationPath);
+                outputDir.mkdirs();
+                destinationPath = String.valueOf(outputDir);
+                if (!outputDir.isDirectory())
+                    throw new IllegalArgumentException("Destination file path error" + " " + destinationPath);
+            }
+            buildMediaSource(uri);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
-        buildMediaSource(uri);
     }
 
     private void onVideoClicked() {
@@ -452,16 +439,24 @@ public class ActVideoTrimmer extends AppCompatActivity {
             LogMessage.v("outputPath::" + outputPath);
             videoPlayer.setPlayWhenReady(false);
             progressView.show();
-            String[] complexCommand = new String[]{"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
-                    , "-i", String.valueOf(uri), "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                    "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
+            String[] complexCommand;
+            if (isAccurateCut) {
+                complexCommand = new String[]{"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
+                        , "-i", String.valueOf(uri), "-t",
+                        TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                        "-async", "1", outputPath};
+            } else {
+                complexCommand = new String[]{"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
+                        , "-i", String.valueOf(uri), "-t",
+                        TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                        "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
+            }
             FFmpegCmd.exec(complexCommand, 0, new OnEditorListener() {
                 @Override
                 public void onSuccess() {
                     progressView.dismiss();
                     Intent intent = new Intent();
-                    intent.putExtra(TrimmerConstants.TRIMMED_VIDEO_PATH, outputPath);
+                    intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
                     setResult(RESULT_OK, intent);
                     finish();
                 }
@@ -491,6 +486,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         } else
             return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE);
+
     }
 
     private boolean checkPermission(String... permissions) {

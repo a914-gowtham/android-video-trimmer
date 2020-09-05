@@ -9,21 +9,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.MediaController;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.cocosw.bottomsheet.BottomSheet;
-import com.gowtham.library.ui.ActVideoTrimmer;
 import com.gowtham.library.utils.LogMessage;
-import com.gowtham.library.utils.TrimmerConstants;
+import com.gowtham.library.utils.TrimType;
+import com.gowtham.library.utils.TrimVideo;
 
 import java.io.File;
 
@@ -63,8 +61,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            if (requestCode == TrimmerConstants.REQ_CODE_VIDEO_TRIMMER && data != null) {
-                Uri uri = Uri.parse(data.getStringExtra(TrimmerConstants.TRIMMED_VIDEO_PATH));
+            if (requestCode == TrimVideo.VIDEO_TRIMMER_REQ_CODE && data != null) {
+                Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(data));
                 Log.d(TAG, "Trimmed path:: " + uri);
                 videoView.setMediaController(mediaController);
                 videoView.setVideoURI(uri);
@@ -94,29 +92,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void openTrimActivity(String data) {
         if (trimType == 0) {
-            Intent intent = new Intent(this, ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
-            intent.putExtra(TrimmerConstants.DESTINATION, "/storage/emulated/0/DCIM/TESTFOLDER");
-            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+            TrimVideo.activity(data)
+                    .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")
+                    .setAccurateCut(true)
+                    .start(this);
         } else if (trimType == 1) {
-            Intent intent = new Intent(this, ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
-            intent.putExtra(TrimmerConstants.TRIM_TYPE, 1);
-            intent.putExtra(TrimmerConstants.FIXED_GAP_DURATION, getEdtValueLong(edtFixedGap));
-            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+            TrimVideo.activity(data)
+                    .setTrimType(TrimType.FIXED_DURATION)
+                    .setFixedDuration(getEdtValueLong(edtFixedGap))
+                    .start(this);
         } else if (trimType == 2) {
-            Intent intent = new Intent(this, ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
-            intent.putExtra(TrimmerConstants.TRIM_TYPE, 2);
-            intent.putExtra(TrimmerConstants.MIN_GAP_DURATION, getEdtValueLong(edtMinGap));
-            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+            TrimVideo.activity(data)
+                    .setTrimType(TrimType.MIN_DURATION)
+                    .setMinDuration(getEdtValueLong(edtMinGap))
+                    .start(this);
         } else {
-            Intent intent = new Intent(this, ActVideoTrimmer.class);
-            intent.putExtra(TrimmerConstants.TRIM_VIDEO_URI, data);
-            intent.putExtra(TrimmerConstants.TRIM_TYPE, 3);
-            intent.putExtra(TrimmerConstants.MIN_FROM_DURATION, getEdtValueLong(edtMinFrom));
-            intent.putExtra(TrimmerConstants.MAX_TO_DURATION, getEdtValueLong(edtMAxTo));
-            startActivityForResult(intent, TrimmerConstants.REQ_CODE_VIDEO_TRIMMER);
+            TrimVideo.activity(data)
+                    .setTrimType(TrimType.MIN_MAX_DURATION)
+                    .setMinToMax(getEdtValueLong(edtMinFrom), getEdtValueLong(edtMAxTo))
+                    .start(this);
         }
     }
 
@@ -139,39 +133,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onDefaultTrimClicked() {
-        trimType=0;
+        trimType = 0;
         if (checkCamStoragePer())
             showVideoOptions();
     }
 
     private void onFixedTrimClicked() {
-        trimType=1;
+        trimType = 1;
         if (isEdtTxtEmpty(edtFixedGap))
-            Toast.makeText(this,"Enter fixed gap duration",Toast.LENGTH_SHORT).show();
-        else if(checkCamStoragePer())
+            Toast.makeText(this, "Enter fixed gap duration", Toast.LENGTH_SHORT).show();
+        else if (checkCamStoragePer())
             showVideoOptions();
     }
 
     private void onMinGapTrimClicked() {
-        trimType=2;
+        trimType = 2;
         if (isEdtTxtEmpty(edtMinGap))
-            Toast.makeText(this,"Enter min gap duration",Toast.LENGTH_SHORT).show();
-        else if(checkCamStoragePer())
+            Toast.makeText(this, "Enter min gap duration", Toast.LENGTH_SHORT).show();
+        else if (checkCamStoragePer())
             showVideoOptions();
     }
 
 
     private void onMinToMaxTrimClicked() {
-        trimType=3;
+        trimType = 3;
         if (isEdtTxtEmpty(edtMinFrom))
-            Toast.makeText(this,"Enter min gap duration",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Enter min gap duration", Toast.LENGTH_SHORT).show();
         else if (isEdtTxtEmpty(edtMAxTo))
-            Toast.makeText(this,"Enter max gap duration",Toast.LENGTH_SHORT).show();
-        else if(checkCamStoragePer())
+            Toast.makeText(this, "Enter max gap duration", Toast.LENGTH_SHORT).show();
+        else if (checkCamStoragePer())
             showVideoOptions();
     }
 
-    public  void showVideoOptions() {
+    public void showVideoOptions() {
         try {
             BottomSheet.Builder builder = getBottomSheet();
             builder.sheet(R.menu.menu_video);
