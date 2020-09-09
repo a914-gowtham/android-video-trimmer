@@ -30,6 +30,7 @@ allprojects {
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
 	  .setAccurateCut(true)
+//	  .setCompressOption(new CompressOption(30,2))
           .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
           .start(this);
 ```
@@ -45,27 +46,35 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```
 ## Customization
 
-* Video Trim Accuracy:
-   1. AccurateCut **false** makes video trimming faster and less accuracy(approx. 1-5secs) 
-   2. AccurateCut **true** makes video trimming slower and high accuracy
+#### Video Trim Accuracy:
 ```java
 .setAccurateCut(true) //default value is false 
 ```
+   1. AccurateCut **false** makes video trimming faster and less accuracy(approx. 1-3secs) 
+   2. AccurateCut **true** makes video trimming slower and high accuracy
 
-* Hide Player Seekbar:
+#### Video Compress:
+```java
+.setCompressOption(new CompressOption(frameRate,bitRate))  //Default values: 30,10
+```
+   1. Don't need to use accurateCut while using video compressOption
+   2. Video compressing process will take more time 
+
+
+#### Hide Player Seekbar:
 ```java
 .setHideSeekBar(true) //default value is false 
 ```
 
 ### Custom TrimTypes
 
-* TrimType Default:
+#### TrimType Default:
 ```java
 TrimVideo.activity(videoUri)
           .start(this);
 ```
 
-* TrimType Fixed Duration:
+#### TrimType Fixed Duration:
 ```java
 TrimVideo.activity(videoUri)
           .setTrimType(TrimType.FIXED_DURATION)
@@ -73,7 +82,7 @@ TrimVideo.activity(videoUri)
           .start(this);
 ```
 
-* TrimType Minimum Duration:
+#### TrimType Minimum Duration:
 ```java
 TrimVideo.activity(videoUri)
           .setTrimType(TrimType.MIN_DURATION)
@@ -81,7 +90,7 @@ TrimVideo.activity(videoUri)
           .start(this);
 ```
 
-* TrimType Min-Max Duration:
+#### TrimType Min-Max Duration:
 ```java
 TrimVideo.activity(videoUri)
           .setTrimType(TrimType.MIN_MAX_DURATION)
