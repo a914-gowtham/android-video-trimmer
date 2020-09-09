@@ -45,6 +45,11 @@ public class TrimVideo {
             return this;
         }
 
+        public ActivityBuilder setCompressOption(final CompressOption compressOption) {
+            options.compressOption = compressOption;
+            return this;
+        }
+
         public ActivityBuilder setAccurateCut(final boolean accurate) {
             options.accurateCut = accurate;
             return this;

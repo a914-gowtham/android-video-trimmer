@@ -21,7 +21,7 @@
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
         android:layout_alignParentTop="true"
-        android:padding="4dp"
+        android:padding="7dp"
         app:left_thumb_image="@drawable/ic_min_seek"
         app:right_thumb_image="@drawable/ic_max_seek"
         />

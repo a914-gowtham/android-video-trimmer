@@ -37,6 +37,7 @@
 
         </RelativeLayout>
     </LinearLayout>
+
     <include
         layout="@layout/view_video_controller"/>
 
