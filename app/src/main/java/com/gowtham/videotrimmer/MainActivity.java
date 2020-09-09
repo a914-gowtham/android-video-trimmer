@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (trimType == 0) {
             TrimVideo.activity(data)
                     .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")
-                    .setCompressOption(new CompressOption(30,2))
+//                    .setCompressOption(new CompressOption(30,2))
                     .start(this);
         } else if (trimType == 1) {
             TrimVideo.activity(data)
