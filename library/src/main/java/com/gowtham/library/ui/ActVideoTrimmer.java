@@ -1,19 +1,22 @@
 package com.gowtham.library.ui;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +29,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
+import com.arthenica.mobileffmpeg.FFmpeg;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -55,10 +58,8 @@ import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 
-import Jni.FFmpegCmd;
-import VideoHandle.EpEditor;
-import VideoHandle.EpVideo;
-import VideoHandle.OnEditorListener;
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 
 public class ActVideoTrimmer extends AppCompatActivity {
@@ -75,6 +76,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private long totalDuration;
 
+    private Dialog dialog;
+
     private Uri uri;
 
     private TextView txtStartDuration, txtEndDuration;
@@ -83,7 +86,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private long lastMinValue = 0;
 
-    private long lastMaxValue = 0, totalVideoDuration;
+    private long lastMaxValue = 0;
 
     private MenuItem menuDone;
 
@@ -93,7 +96,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private Handler seekHandler;
 
-    private long currentDuration;
+    private long currentDuration,lastClickedTime;
 
     private CompressOption compressOption;
 
@@ -106,6 +109,9 @@ public class ActVideoTrimmer extends AppCompatActivity {
     private boolean hidePlayerSeek, isAccurateCut;
 
     private CustomProgressView progressView;
+
+    private String path;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,7 +261,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
                             break;
                         case Player.STATE_READY:
                             isVideoEnded = false;
-                            totalVideoDuration = videoPlayer.getDuration() / 1000;
                             startProgress();
                             imagePlayPause.setVisibility(videoPlayer.getPlayWhenReady() ? View.GONE :
                                     View.VISIBLE);
@@ -307,11 +312,19 @@ public class ActVideoTrimmer extends AppCompatActivity {
             if (hidePlayerSeek)
                 seekbarController.setVisibility(View.GONE);
 
+            seekbar.setOnRangeSeekbarFinalValueListener((minValue, maxValue) -> {
+                if (!hidePlayerSeek)
+                    seekbarController.setVisibility(View.VISIBLE);
+            });
+
             seekbar.setOnRangeSeekbarChangeListener((minValue, maxValue) -> {
                 long minVal = (long) minValue;
                 long maxVal = (long) maxValue;
-                if (lastMinValue != minVal)
+                if (lastMinValue != minVal) {
                     seekTo((long) minValue);
+                    if (!hidePlayerSeek)
+                        seekbarController.setVisibility(View.INVISIBLE);
+                }
                 lastMinValue = minVal;
                 lastMaxValue = maxVal;
                 txtStartDuration.setText(TrimmerUtils.formatSeconds(minVal));
@@ -320,21 +333,18 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     setDoneColor(minVal, maxVal);
             });
 
-            seekbarController.setOnSeekbarFinalValueListener(new OnSeekbarFinalValueListener() {
-                @Override
-                public void finalValue(Number value) {
-                    long value1 = (long) value;
-                    if (value1 < lastMaxValue && value1 > lastMinValue) {
-                        seekTo(value1);
-                        return;
-                    }
-                    if (value1 > lastMaxValue)
-                        seekbarController.setMinStartValue((int) lastMaxValue).apply();
-                    else if (value1 < lastMinValue) {
-                        seekbarController.setMinStartValue((int) lastMinValue).apply();
-                        if (videoPlayer.getPlayWhenReady())
-                            seekTo(lastMinValue);
-                    }
+            seekbarController.setOnSeekbarFinalValueListener(value -> {
+                long value1 = (long) value;
+                if (value1 < lastMaxValue && value1 > lastMinValue) {
+                    seekTo(value1);
+                    return;
+                }
+                if (value1 > lastMaxValue)
+                    seekbarController.setMinStartValue((int) lastMaxValue).apply();
+                else if (value1 < lastMinValue) {
+                    seekbarController.setMinStartValue((int) lastMinValue).apply();
+                    if (videoPlayer.getPlayWhenReady())
+                        seekTo(lastMinValue);
                 }
             });
         } catch (Exception e) {
@@ -378,11 +388,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         videoPlayer.setPlayWhenReady(false);
@@ -415,6 +420,9 @@ public class ActVideoTrimmer extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_done) {
+            if (SystemClock.elapsedRealtime() - lastClickedTime < 800)
+                return true;
+            lastClickedTime = SystemClock.elapsedRealtime();
             validateVideo();
             return true;
         }
@@ -423,10 +431,9 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void validateVideo() {
         if (isValidVideo) {
-            String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
             if (destinationPath != null)
                 path = destinationPath;
-
             int fileNo = 0;
             String fileName = "trimmed_video_";
             File newFile = new File(path + File.separator +
@@ -438,84 +445,103 @@ public class ActVideoTrimmer extends AppCompatActivity {
             }
             outputPath = String.valueOf(newFile);
             LogMessage.v("outputPath::" + outputPath);
+            LogMessage.v("sourcePath::" + uri);
             videoPlayer.setPlayWhenReady(false);
-            progressView.show();
+            showProcessingDialog();
             String[] complexCommand;
+            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+            metaRetriever.setDataSource(String.valueOf(uri));
+            String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
+            int h = Integer.parseInt(height);
             if (compressOption != null) {
-                compressVideo(outputPath);
-            } else if (isAccurateCut) {
-                complexCommand = new String[]{"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
-                        , "-i", String.valueOf(uri), "-t",
-                        TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                        "-async", "1", outputPath};
-                executeCommand(complexCommand, outputPath);
-            } else {
-                complexCommand = new String[]{"ffmpeg", "-ss", TrimmerUtils.formatCSeconds(lastMinValue)
-                        , "-i", String.valueOf(uri), "-t",
-                        TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                        "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
-                executeCommand(complexCommand, outputPath);
+                if (w >= 800) {
+                    w = w / 2;
+                    h = Integer.parseInt(height) / 2;
+                    complexCommand = new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+                            "-i", String.valueOf(uri),
+                            "-s", w + "x" + h, "-r", String.valueOf(compressOption.getFrameRate()),
+                            "-vcodec", "mpeg4", "-b:v",
+                            compressOption.getBitRate() + "M", "-b:a", "48000", "-ac", "2", "-ar", "22050",
+                            "-t",
+                            TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
+                } else {
+                    complexCommand = new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+                            "-i", String.valueOf(uri), "-s", w + "x" + h, "-r",
+                            String.valueOf(compressOption.getFrameRate()), "-vcodec", "mpeg4", "-b:v",
+                            "350K", "-b:a", "48000", "-ac", "2", "-ar", "22050",
+                            "-t",
+                            TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
+                }
+            } else if (isAccurateCut)
+                complexCommand = getAccurateBinary();
+            else {
+                complexCommand = new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue) + ".00",
+                        "-t",
+                        TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue) + ".00", "-noaccurate_seek"
+                        , "-i", String.valueOf(uri),
+                        "-codec", "copy", "-avoid_negative_ts", "1", outputPath};
             }
+            execFFmpegBinary(complexCommand, true);
         } else
             Toast.makeText(this, getString(R.string.txt_smaller) + " " + TrimmerUtils.getLimitedTimeFormatted(maxToGap), Toast.LENGTH_SHORT).show();
-
     }
 
-    private void executeCommand(String[] complexCommand, String outputPath) {
-        FFmpegCmd.exec(complexCommand, 0, new OnEditorListener() {
-            @Override
-            public void onSuccess() {
-                progressView.dismiss();
-                Intent intent = new Intent();
-                intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
-
-            @Override
-            public void onFailure() {
-                if (progressView.isShowing())
-                    progressView.dismiss();
-                runOnUiThread(() ->
-                        Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void onProgress(float progress) {
-                LogMessage.v("Progress::" + progress + "%");
-            }
-        });
+    private void execFFmpegBinary(final String[] command, boolean retry) {
+        try {
+            long executionId = FFmpeg.executeAsync(command, (executionId1, returnCode) -> {
+                if (returnCode == RETURN_CODE_SUCCESS) {
+                    dialog.dismiss();
+                    Intent intent = new Intent();
+                    intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                } else if (returnCode == RETURN_CODE_CANCEL) {
+                    if (dialog.isShowing())
+                        dialog.dismiss();
+                } else {
+                    if (retry) {
+                        File newFile = new File(outputPath);
+                        if (newFile.exists())
+                            newFile.delete();
+                        execFFmpegBinary(getAccurateBinary(), false);
+                    } else {
+                        if (dialog.isShowing())
+                            dialog.dismiss();
+                        runOnUiThread(() ->
+                                Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void compressVideo(String outputPath) {
-        EpVideo epVideo = new EpVideo(String.valueOf(uri));
-        epVideo.clip(lastMinValue, lastMaxValue - lastMinValue);
-        EpEditor.OutputOption outputOption = new EpEditor.OutputOption(outputPath);
-        outputOption.frameRate = compressOption.getFrameRate();
-        outputOption.bitRate = compressOption.getBitRate();
-        EpEditor.exec(epVideo, outputOption, new OnEditorListener() {
-            @Override
-            public void onSuccess() {
-                progressView.dismiss();
-                Intent intent = new Intent();
-                intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
+    private String[] getAccurateBinary() {
+        return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue)
+                , "-i", String.valueOf(uri), "-t",
+                TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                "-async", "1", outputPath};
+    }
 
-            @Override
-            public void onFailure() {
-                if (progressView.isShowing())
-                    progressView.dismiss();
-                runOnUiThread(() ->
-                        Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void onProgress(float progress) {
-                LogMessage.v("Progress::" + progress + "%");
-            }
-        });
+    private void showProcessingDialog() {
+        try {
+            dialog = new Dialog(this);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.alert_convert);
+            TextView txtCancel = dialog.findViewById(R.id.txt_cancel);
+            dialog.setCancelable(false);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            txtCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+                FFmpeg.cancel();
+            });
+            dialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean checkStoragePermission() {

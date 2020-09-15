@@ -52,7 +52,8 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```
    1. AccurateCut **false** makes video trimming faster and less accuracy(approx. 1-3secs) 
    2. AccurateCut **true** makes video trimming slower and high accuracy
-
+   Note: Use true only,If you want to trim a video with **equal** or **less** than a minute duration trimming.
+                       AccurateCut takes more time to process for more than a minute duration trimming.   
 #### Video Compress:
 ```java
 .setCompressOption(new CompressOption(frameRate,bitRate))  //Default values: 30,10

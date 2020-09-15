@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Collection;
 
 public class TrimmerUtils {
 
@@ -61,6 +62,20 @@ public class TrimmerUtils {
         return 0;
     }
 
+    public static long getDurationMillis(Activity context, Uri videoPath) {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context, videoPath);
+            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long timeInMillisec = Long.parseLong(time);
+            retriever.release();
+            return timeInMillisec;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static int getTrimType(TrimType trimType) {
         switch (trimType) {
             case FIXED_DURATION:
@@ -72,21 +87,6 @@ public class TrimmerUtils {
             default:
                 return 0;
         }
-    }
-
-    public static long getVideoDuration(Activity context, Uri videoUri) {
-        try {
-            String videoPath = FileUtils.getPath(context,videoUri);
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(context, Uri.parse(videoPath));
-            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            long timeInMillisec = Long.parseLong(time);
-            retriever.release();
-            return timeInMillisec / 1000;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 
     public static String getFileExtension(Context context, Uri uri) {
@@ -200,5 +200,7 @@ public class TrimmerUtils {
             return time;
     }
 
-
+    public static String clearNull(String value) {
+        return value == null ? "" : value.trim();
+    }
 }
