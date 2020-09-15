@@ -29,7 +29,8 @@ allprojects {
 2. Add the code for opening Trim Activity.
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
-	  .setCompressOption(new CompressOption(30,2)) //Use CompressOption instead of AccurateCut
+	  .setAccurateCut(true)
+//	  .setCompressOption(new CompressOption(30,2))
           .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
           .start(this);
 ```
@@ -49,7 +50,6 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```java
 .setAccurateCut(true) //default value is false 
 ```
-   **Update:Use CompressOption instead of AccurateCut.cause this command doesn't work on some videos**
    1. AccurateCut **false** makes video trimming faster and less accuracy(approx. 1-3secs) 
    2. AccurateCut **true** makes video trimming slower and high accuracy
 
@@ -57,9 +57,9 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```java
 .setCompressOption(new CompressOption(frameRate,bitRate))  //Default values: 30,10
 ```
-   Note: Recommeded bitRate is **2**.when you try to trim a video that is below than 2 bitRate compresstion may increase the size of video
    1. Don't need to use accurateCut while using video compressOption
    2. Video compressing process will take more time 
+
 
 #### Hide Player Seekbar:
 ```java
