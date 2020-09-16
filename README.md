@@ -15,7 +15,7 @@
 + Add the dependency to your app `build.gradle` file
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.3.0'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.4.0'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -29,8 +29,7 @@ allprojects {
 2. Add the code for opening Trim Activity.
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
-	  .setAccurateCut(true)
-//	  .setCompressOption(new CompressOption(30,2))
+//        .setCompressOption(new CompressOption()) //empty constructor for default compress option
           .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
           .start(this);
 ```
@@ -46,21 +45,38 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```
 ## Customization
 
+#### Video Compress:
+```java
+.setCompressOption(new CompressOption(frameRate,bitRate,width,height))  //pass empty constructor for default compressoption
+```
+  * `FrameRate` Recommeded frameRate is 30
+  * `BitRate`   Bitrate Can be between 150k to 1000k or 1M to 10M.Lower bitrate can reduce the quality and size of the video.
+               Use 1M for better quality output 
+  * `Width` Width of the video output video. 
+  * `Height` Height of the video output video.Use `TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));` method to get the width and height of the video
+   1. No need to use accurateCut while using video compressOption
+   2. Video compressing process will take more time
+```java 
+.setCompressOption(new CompressOption(30,"1M",460,320))
+//You could divide the width and height by 2. when try to compress a large resolution videos ex:Taken from camera
+/*int[] wAndh=TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));
+    int width=wAndh[0];
+    int height=wAndh[1];
+    if(wAndh[0]>800){
+      width/=2;
+      width/=2;
+     .setCompressOption(new CompressOption(30,"1M",width,height))   
+     }else
+     .setCompressOption(new CompressOption(30,"400k",width,height))   
+   */
+```
+   
 #### Video Trim Accuracy:
 ```java
 .setAccurateCut(true) //default value is false 
 ```
    1. AccurateCut **false** makes video trimming faster and less accuracy(approx. 1-3secs) 
    2. AccurateCut **true** makes video trimming slower and high accuracy
-   Note: Use true only,If you want to trim a video with **equal** or **less** than a minute duration trimming.
-                       AccurateCut takes more time to process for more than a minute duration trimming.   
-#### Video Compress:
-```java
-.setCompressOption(new CompressOption(frameRate,bitRate))  //Default values: 30,10
-```
-   1. Don't need to use accurateCut while using video compressOption
-   2. Video compressing process will take more time 
-
 
 #### Hide Player Seekbar:
 ```java
@@ -112,7 +128,8 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
-
+### Version 1.4.0
+  * FFmpegMedia lib changed into Mobile-ffmpeg 
 ### Version 1.0.9
   * Library size reduced 
   * Library size : 12mb(release build)
@@ -128,6 +145,9 @@ TrimVideo.activity(videoUri)
 ### Version 1.0.0
   * Initial Build
   
+## Thanks to 
+[TanerSener](https://github.com/tanersener/mobile-ffmpeg)
+
 ## Support 
 Show your support by giving a star to this repository.that's how i know the usage of this library so i can try to make improvements 
   
