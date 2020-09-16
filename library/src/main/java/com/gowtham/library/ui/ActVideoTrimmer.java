@@ -497,7 +497,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                     "-i", String.valueOf(uri), "-s", w + "x" + h, "-r",
                     "30", "-vcodec", "mpeg4", "-b:v",
-                    "350K", "-b:a", "48000", "-ac", "2", "-ar", "22050",
+                    "400K", "-b:a", "48000", "-ac", "2", "-ar", "22050",
                     "-t",
                     TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
         }
