@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.gowtham.library.ui.ActVideoTrimmer;
 
@@ -78,6 +79,11 @@ public class TrimVideo {
         public void start(Activity activity) {
             validate();
             activity.startActivityForResult(getIntent(activity), VIDEO_TRIMMER_REQ_CODE);
+        }
+        
+        public void start(Fragment fragment) {
+            validate();
+            fragment.startActivityForResult(getIntent(fragment.getActivity()), VIDEO_TRIMMER_REQ_CODE);
         }
 
         private void validate() {
