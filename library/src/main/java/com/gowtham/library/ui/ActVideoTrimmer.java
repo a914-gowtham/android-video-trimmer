@@ -110,8 +110,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private CustomProgressView progressView;
 
-    private String path;
-
+    private String path,fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,6 +194,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             assert trimVideoOptions != null;
             trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);
             destinationPath = trimVideoOptions.destination;
+            fileName=trimVideoOptions.fileName;
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
             isAccurateCut = trimVideoOptions.accurateCut;
             compressOption = trimVideoOptions.compressOption;
@@ -435,9 +435,11 @@ public class ActVideoTrimmer extends AppCompatActivity {
             if (destinationPath != null)
                 path = destinationPath;
             int fileNo = 0;
-            String fileName = "trimmed_video_";
+            String fName = "trimmed_video_";
+            if (fileName!=null && !fileName.isEmpty())
+                fName=fileName;
             File newFile = new File(path + File.separator +
-                    (fileName + fileNo) + "." + TrimmerUtils.getFileExtension(this, uri));
+                    (fName) + "." + TrimmerUtils.getFileExtension(this, uri));
             while (newFile.exists()) {
                 fileNo++;
                 newFile = new File(path + File.separator +
@@ -472,6 +474,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
         int h = Integer.parseInt(height);
+
+        //Default compression option
         if (compressOption.getWidth()!=0 || compressOption.getHeight()!=0
                 || !compressOption.getBitRate().equals("0k")){
             return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
@@ -483,6 +487,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     "22050","-t",
                     TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
         }
+        //Dividing high resolution video by 2(taken with camera)
        else if (w >= 800) {
             w = w / 2;
             h = Integer.parseInt(height) / 2;

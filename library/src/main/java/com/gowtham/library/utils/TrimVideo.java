@@ -51,6 +51,11 @@ public class TrimVideo {
             return this;
         }
 
+        public ActivityBuilder setFileName(final String fileName) {
+            options.fileName = fileName;
+            return this;
+        }
+
         public ActivityBuilder setAccurateCut(final boolean accurate) {
             options.accurateCut = accurate;
             return this;
