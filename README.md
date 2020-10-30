@@ -153,7 +153,7 @@ TrimVideo.activity(videoUri)
 [TanerSener](https://github.com/tanersener/mobile-ffmpeg)
 
 ## Support 
-Show your support by giving a star to this repository.that's how i know the usage of this library so i can try to make improvements 
+Show your support by giving a star to this repository.that's how i know the usage of this library so this can keep me motivated to make improvements 
   
 ## Collaboration
 There are many ways of improving and adding more features, so feel free to collaborate with ideas, issues and/or pull requests. 
