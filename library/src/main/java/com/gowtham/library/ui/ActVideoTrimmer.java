@@ -118,7 +118,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         setContentView(R.layout.act_video_trimmer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setUpToolBar(getSupportActionBar(), getString(R.string.txt_edt_txt));
+        setUpToolBar(getSupportActionBar(), getString(R.string.txt_edt_video));
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
     }
