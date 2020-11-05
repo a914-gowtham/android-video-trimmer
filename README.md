@@ -128,6 +128,10 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.4.1
+  * Can be started from fragment
+  * Added Custom fileName for the output video
+  
 ### Version 1.4.0
   * FFmpegMedia lib changed into Mobile-ffmpeg 
 ### Version 1.0.9
@@ -149,7 +153,7 @@ TrimVideo.activity(videoUri)
 [TanerSener](https://github.com/tanersener/mobile-ffmpeg)
 
 ## Support 
-Show your support by giving a star to this repository.that's how i know the usage of this library so i can try to make improvements 
+Show your support by giving a star to this repository.that's how i know the usage of this library so this can keep me motivated to make improvements 
   
 ## Collaboration
 There are many ways of improving and adding more features, so feel free to collaborate with ideas, issues and/or pull requests. 
