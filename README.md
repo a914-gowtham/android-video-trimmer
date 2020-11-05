@@ -128,6 +128,9 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.4.2
+  * Toolbar title softcoded 
+  
 ### Version 1.4.1
   * Can be started from fragment
   * Added Custom fileName for the output video
