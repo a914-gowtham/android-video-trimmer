@@ -10,4 +10,5 @@
     <string name="txt_smaller">Video should be smaller than</string>
     <string name="edit_video">Edit Video</string>
     <string name="txt_compress_video">Compressing Video…</string>
+    <string name="txt_edt_txt">Edit Video</string>
 </resources>
