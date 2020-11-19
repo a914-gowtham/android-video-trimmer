@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -46,6 +47,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.gowtham.library.R;
 import com.gowtham.library.utils.CompressOption;
@@ -243,12 +245,9 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void buildMediaSource(Uri mUri) {
         try {
-            DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
-                    Util.getUserAgent(this, getString(R.string.app_name)), bandwidthMeter);
-            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(mUri);
-            videoPlayer.prepare(videoSource);
+            DataSource.Factory dataSourceFactory=new DefaultDataSourceFactory(this,getString(R.string.app_name));
+            MediaSource mediaSource=new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mUri);
+            videoPlayer.prepare(mediaSource);
             videoPlayer.setPlayWhenReady(true);
             videoPlayer.addListener(new Player.DefaultEventListener() {
                 @Override
