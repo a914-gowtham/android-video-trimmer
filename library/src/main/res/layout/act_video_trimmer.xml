@@ -20,7 +20,7 @@
         <RelativeLayout
             style="@style/VWView">
 
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/player_view_lib"
             style="@style/FView"
             app:use_controller="false"
@@ -30,6 +30,7 @@
                 style="@style/WView"
                 android:src="@drawable/ic_video_play_lib"
                 android:padding="12dp"
+                android:visibility="gone"
                 android:layout_centerInParent="true"
                 android:background="@drawable/shape_circle_lib"
                 android:id="@+id/image_play_pause"

@@ -32,23 +32,15 @@ import androidx.core.content.ContextCompat;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.gowtham.library.R;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.CustomProgressView;
@@ -59,6 +51,7 @@ import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
+import java.util.Objects;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
@@ -112,7 +105,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private CustomProgressView progressView;
 
-    private String path,fileName;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,11 +155,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void initPlayer() {
         try {
-            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-            TrackSelector trackSelector =
-                    new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
-            videoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
-            playerView.requestFocus();
+            videoPlayer =new SimpleExoPlayer.Builder(this).build();
             playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
             playerView.setPlayer(videoPlayer);
         } catch (Exception e) {
@@ -182,7 +171,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             totalDuration = TrimmerUtils.getDuration(this, uri);
             imagePlayPause.setOnClickListener(v ->
                     onVideoClicked());
-            playerView.getVideoSurfaceView().setOnClickListener(v ->
+            Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
                     onVideoClicked());
             validate();
         } catch (Exception e) {
@@ -246,13 +235,20 @@ public class ActVideoTrimmer extends AppCompatActivity {
     private void buildMediaSource(Uri mUri) {
         try {
             DataSource.Factory dataSourceFactory=new DefaultDataSourceFactory(this,getString(R.string.app_name));
-            MediaSource mediaSource=new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mUri);
-            videoPlayer.prepare(mediaSource);
+            MediaSource mediaSource=new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(mUri));
+            videoPlayer.addMediaSource(mediaSource);
+            videoPlayer.prepare();
             videoPlayer.setPlayWhenReady(true);
-            videoPlayer.addListener(new Player.DefaultEventListener() {
+            videoPlayer.addListener(new Player.EventListener() {
                 @Override
-                public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                    switch (playbackState) {
+                public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+                    imagePlayPause.setVisibility(playWhenReady ? View.GONE :
+                            View.VISIBLE);
+                }
+
+                @Override
+                public void onPlaybackStateChanged(int state) {
+                    switch (state) {
                         case Player.STATE_ENDED:
                             LogMessage.v("onPlayerStateChanged: Video ended.");
                             imagePlayPause.setVisibility(View.VISIBLE);
@@ -261,14 +257,19 @@ public class ActVideoTrimmer extends AppCompatActivity {
                         case Player.STATE_READY:
                             isVideoEnded = false;
                             startProgress();
-                            imagePlayPause.setVisibility(videoPlayer.getPlayWhenReady() ? View.GONE :
-                                    View.VISIBLE);
                             LogMessage.v("onPlayerStateChanged: Ready to play.");
                             break;
                         default:
                             break;
+                        case Player.STATE_BUFFERING:
+                            LogMessage.v("onPlayerStateChanged: STATE_BUFFERING.");
+                            break;
+                        case Player.STATE_IDLE:
+                            LogMessage.v("onPlayerStateChanged: STATE_IDLE.");
+                            break;
                     }
                 }
+
             });
             setImageBitmaps();
         } catch (Exception e) {
@@ -430,7 +431,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void validateVideo() {
         if (isValidVideo) {
-            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
+            String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
             if (destinationPath != null)
                 path = destinationPath;
             int fileNo = 0;
@@ -486,7 +487,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                     "22050","-t",
                     TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
         }
-        //Dividing high resolution video by 2(taken with camera)
+        //Dividing high resolution video by 2(ex: taken with camera)
        else if (w >= 800) {
             w = w / 2;
             h = Integer.parseInt(height) / 2;
@@ -509,7 +510,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
-            long executionId = FFmpeg.executeAsync(command, (executionId1, returnCode) -> {
+             FFmpeg.executeAsync(command, (executionId1, returnCode) -> {
                 if (returnCode == RETURN_CODE_SUCCESS) {
                     dialog.dismiss();
                     Intent intent = new Intent();
