@@ -1,18 +1,25 @@
 package com.gowtham.library.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,11 +37,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.arthenica.mobileffmpeg.FFmpeg;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
@@ -51,13 +62,15 @@ import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 
-public class ActVideoTrimmer extends AppCompatActivity {
+public class ActVideoTrimmer extends AppCompatActivity{
 
     private PlayerView playerView;
 
@@ -158,6 +171,13 @@ public class ActVideoTrimmer extends AppCompatActivity {
             videoPlayer =new SimpleExoPlayer.Builder(this).build();
             playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
             playerView.setPlayer(videoPlayer);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setUsage(C.USAGE_MEDIA)
+                        .setContentType(C.CONTENT_TYPE_MOVIE)
+                        .build();
+                videoPlayer.setAudioAttributes(audioAttributes, true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -280,16 +300,25 @@ public class ActVideoTrimmer extends AppCompatActivity {
     private void setImageBitmaps() {
         try {
             long diff = totalDuration / 8;
-            new Handler().postDelayed(() -> {
-                int index = 1;
+            AsyncTask.execute(() -> {
+                int sec = 1;
+                List<Bitmap> bitmaps=new ArrayList<>();
                 for (ImageView img : imageViews) {
-                    img.setImageBitmap(TrimmerUtils.getFrameBySec(ActVideoTrimmer.this, uri, diff * index));
-                    index++;
+                    bitmaps.add(TrimmerUtils.getFrameBySec(ActVideoTrimmer.this, uri, diff * sec));
+                    sec++;
                 }
-                seekbar.setVisibility(View.VISIBLE);
-                txtStartDuration.setVisibility(View.VISIBLE);
-                txtEndDuration.setVisibility(View.VISIBLE);
-            }, 1000);
+                runOnUiThread(() -> {
+                    for (int i = 0; i < imageViews.length; i++) {
+                        Glide.with(this)
+                                .load(bitmaps.get(i))
+                                .transition(DrawableTransitionOptions.withCrossFade(300))
+                                .into(imageViews[i]);
+                    }
+                    seekbar.setVisibility(View.VISIBLE);
+                    txtStartDuration.setVisibility(View.VISIBLE);
+                    txtEndDuration.setVisibility(View.VISIBLE);
+                });
+            });
 
             seekbarController.setMaxValue(totalDuration).apply();
             seekbar.setMaxValue(totalDuration).apply();

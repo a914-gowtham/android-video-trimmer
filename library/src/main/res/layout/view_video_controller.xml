@@ -45,38 +45,55 @@
         android:id="@+id/view_image"
         android:layout_alignParentTop="true"
         android:layout_marginStart="30dp"
+        android:background="@color/colorBlack"
         android:layout_marginEnd="30dp">
 
         <ImageView
             android:id="@+id/image_one"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
 
         <ImageView
             android:id="@+id/image_two"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
 
         <ImageView
             android:id="@+id/image_three"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
 
         <ImageView
             android:id="@+id/image_four"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
 
         <ImageView
             android:id="@+id/image_five"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
 
         <ImageView
             android:id="@+id/image_six"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim"/>
 
         <ImageView
             android:id="@+id/image_seven"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
 
         <ImageView
             android:id="@+id/image_eight"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             style="@style/ImageTrim" />
     </LinearLayout>
 </RelativeLayout>
