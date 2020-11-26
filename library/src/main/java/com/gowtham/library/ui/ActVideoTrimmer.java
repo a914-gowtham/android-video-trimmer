@@ -352,7 +352,7 @@ public class ActVideoTrimmer extends AppCompatActivity{
                 if (lastMinValue != minVal) {
                     seekTo((long) minValue);
                     if (!hidePlayerSeek)
-                        seekbarController.setVisibility(View.INVISIBLE);
+                        seekbarController.setVisibility(View.GONE);
                 }
                 lastMinValue = minVal;
                 lastMaxValue = maxVal;
