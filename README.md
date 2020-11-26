@@ -129,6 +129,8 @@ TrimVideo.activity(videoUri)
   
 ## ChangeLog
 ### Version 1.4.2
+  * Exoplayer version updated to 2.12.1
+### Version 1.4.2
   * Toolbar title softcoded 
   
 ### Version 1.4.1
