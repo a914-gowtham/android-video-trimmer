@@ -30,6 +30,7 @@ allprojects {
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
 //        .setCompressOption(new CompressOption()) //empty constructor for default compress option
+          .setHideSeekBar(true)
           .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
           .start(this);
 ```
@@ -128,7 +129,7 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
-### Version 1.4.2
+### Version 1.4.4
   * Exoplayer version updated to 2.12.1
 ### Version 1.4.2
   * Toolbar title softcoded 
