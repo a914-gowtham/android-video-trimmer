@@ -38,7 +38,12 @@ import androidx.core.content.ContextCompat;
 
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.VideoBitmapDecoder;
+import com.bumptech.glide.load.resource.bitmap.VideoDecoder;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
 import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.google.android.exoplayer2.C;
@@ -300,25 +305,21 @@ public class ActVideoTrimmer extends AppCompatActivity{
     private void setImageBitmaps() {
         try {
             long diff = totalDuration / 8;
-            AsyncTask.execute(() -> {
-                int sec = 1;
-                List<Bitmap> bitmaps=new ArrayList<>();
-                for (ImageView img : imageViews) {
-                    bitmaps.add(TrimmerUtils.getFrameBySec(ActVideoTrimmer.this, uri, diff * sec));
+            int sec = 1;
+            for (ImageView img : imageViews) {
+                long interval = (diff * sec)*1000000;
+                RequestOptions options = new RequestOptions().frame(interval);
+                Glide.with(this)
+                        .load(getIntent().getStringExtra(TrimVideo.TRIM_VIDEO_URI))
+                        .apply(options)
+                        .transition(DrawableTransitionOptions.withCrossFade(300))
+                        .into(img);
+                if (sec<totalDuration)
                     sec++;
-                }
-                runOnUiThread(() -> {
-                    for (int i = 0; i < imageViews.length; i++) {
-                        Glide.with(this)
-                                .load(bitmaps.get(i))
-                                .transition(DrawableTransitionOptions.withCrossFade(300))
-                                .into(imageViews[i]);
-                    }
-                    seekbar.setVisibility(View.VISIBLE);
-                    txtStartDuration.setVisibility(View.VISIBLE);
-                    txtEndDuration.setVisibility(View.VISIBLE);
-                });
-            });
+            }
+            seekbar.setVisibility(View.VISIBLE);
+            txtStartDuration.setVisibility(View.VISIBLE);
+            txtEndDuration.setVisibility(View.VISIBLE);
 
             seekbarController.setMaxValue(totalDuration).apply();
             seekbar.setMaxValue(totalDuration).apply();
