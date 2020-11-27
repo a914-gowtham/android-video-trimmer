@@ -15,7 +15,7 @@
 + Add the dependency to your app `build.gradle` file
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.4.0'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.5.1'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -129,6 +129,12 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.5.1
+  * Controller seekbar bug fixed
+### Version 1.5.0
+  * Audio focus added
+  * Bug fixes on Android 11
+  * ui improvements
 ### Version 1.4.4
   * Exoplayer version updated to 2.12.1
 ### Version 1.4.2
