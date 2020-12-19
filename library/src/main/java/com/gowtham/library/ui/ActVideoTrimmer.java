@@ -125,8 +125,6 @@ public class ActVideoTrimmer extends AppCompatActivity{
 
     private String fileName;
 
-    private int maxDuration;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,7 +210,7 @@ public class ActVideoTrimmer extends AppCompatActivity{
             assert trimVideoOptions != null;
             trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);
             destinationPath = trimVideoOptions.destination;
-            fileName = trimVideoOptions.fileName;
+            fileName=trimVideoOptions.fileName;
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
             isAccurateCut = trimVideoOptions.accurateCut;
             compressOption = trimVideoOptions.compressOption;
@@ -220,10 +218,9 @@ public class ActVideoTrimmer extends AppCompatActivity{
             fixedGap = fixedGap != 0 ? fixedGap : totalDuration;
             minGap = trimVideoOptions.minDuration;
             minGap = minGap != 0 ? minGap : totalDuration;
-            maxDuration = trimVideoOptions.maxDuration;
             if (trimType == 3) {
                 minFromGap = trimVideoOptions.minToMax[0];
-                maxToGap = maxDuration > 0 ? maxDuration : trimVideoOptions.minToMax[1];
+                maxToGap = trimVideoOptions.minToMax[1];
                 minFromGap = minFromGap != 0 ? minFromGap : totalDuration;
                 maxToGap = maxToGap != 0 ? maxToGap : totalDuration;
             }
@@ -358,27 +355,12 @@ public class ActVideoTrimmer extends AppCompatActivity{
                     if (!hidePlayerSeek)
                         seekbarController.setVisibility(View.INVISIBLE);
                 }
-                int difference = maxValue.intValue() - minValue.intValue();
-                if (maxDuration > 0 && difference > maxDuration) // maxDuration = 60
-                {
-                    if (lastMaxValue != maxValue.intValue()) {
-                        lastMaxValue = lastMinValue + maxDuration;
-                        seekbar.setMaxStartValue(lastMaxValue);
-                        seekbar.apply();
-
-                    } else if (lastMinValue != minValue.intValue()) {
-                        lastMinValue = lastMaxValue - maxDuration;
-                        seekbar.setMinStartValue(lastMinValue);
-                        seekbar.apply();
-                    }
-                } else {
-                    lastMinValue = minVal;
-                    lastMaxValue = maxVal;
-                }
-                txtStartDuration.setText(TrimmerUtils.formatSeconds(lastMinValue));
-                txtEndDuration.setText(TrimmerUtils.formatSeconds(lastMaxValue));
+                lastMinValue = minVal;
+                lastMaxValue = maxVal;
+                txtStartDuration.setText(TrimmerUtils.formatSeconds(minVal));
+                txtEndDuration.setText(TrimmerUtils.formatSeconds(maxVal));
                 if (trimType == 3)
-                    setDoneColor(lastMinValue, lastMaxValue);
+                    setDoneColor(minVal, maxVal);
             });
 
             seekbarController.setOnSeekbarFinalValueListener(value -> {
