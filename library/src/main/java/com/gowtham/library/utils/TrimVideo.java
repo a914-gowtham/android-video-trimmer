@@ -81,11 +81,6 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setMaxDuration(int maxDuration) {
-            options.maxDuration = maxDuration;
-            return this;
-        }
-
         public void start(Activity activity) {
             validate();
             activity.startActivityForResult(getIntent(activity), VIDEO_TRIMMER_REQ_CODE);
