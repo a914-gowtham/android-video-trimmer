@@ -3,6 +3,7 @@ package com.gowtham.videotrimmer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         edtMinFrom = findViewById(R.id.edt_min_from);
         edtMAxTo = findViewById(R.id.edt_max_to);
         mediaController = new MediaController(this);
-        mediaController.setAnchorView(videoView);
+
+
 
         findViewById(R.id.btn_default_trim).setOnClickListener(this);
         findViewById(R.id.btn_fixed_gap).setOnClickListener(this);
@@ -69,6 +71,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 videoView.setVideoURI(uri);
                 videoView.requestFocus();
                 videoView.start();
+
+                videoView.setOnPreparedListener(mediaPlayer -> {
+                    mediaController.setAnchorView(videoView);
+                });
+
                 String filepath = String.valueOf(uri);
                 File file = new File(filepath);
                 long length = file.length();
