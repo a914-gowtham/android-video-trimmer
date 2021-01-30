@@ -14,6 +14,7 @@
 1. Include the library as local library project.
 
 + Add the dependency to your app `build.gradle` file
++ Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
     implementation 'com.github.a914-gowtham:Android-video-trimmer:1.5.2'
