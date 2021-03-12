@@ -56,7 +56,12 @@ import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
@@ -467,10 +472,10 @@ public class ActVideoTrimmer extends AppCompatActivity {
     }
 
     private void trimVideo() {
-        //not exceed given maxDuration if has given
         if (isValidVideo) {
+            //not exceed given maxDuration if has given
             outputPath = getFileName();
-            LogMessage.v("outputPath::" + outputPath);
+            LogMessage.v("outputPath::" + outputPath + new File(outputPath).exists());
             LogMessage.v("sourcePath::" + uri);
             videoPlayer.setPlayWhenReady(false);
             showProcessingDialog();
@@ -481,8 +486,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 //no changes in video quality
                 //faster trimming command and given duration will be accurate
                 complexCommand = getAccurateCmd();
-            }
-            else {
+            } else {
                 //no changes in video quality
                 //fastest trimming command however, result duration
                 //will be low accurate(2-3 secs)
@@ -501,17 +505,23 @@ public class ActVideoTrimmer extends AppCompatActivity {
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
         if (destinationPath != null)
             path = destinationPath;
-        int fileNo = 0;
+        Calendar calender = Calendar.getInstance();
+        String fileDateTime = calender.get(Calendar.YEAR) + "_" +
+                calender.get(Calendar.MONTH) + "_" +
+                calender.get(Calendar.DAY_OF_MONTH) + "_" +
+                calender.get(Calendar.HOUR_OF_DAY) + "_"+
+                calender.get(Calendar.MINUTE) + "_"+
+                calender.get(Calendar.SECOND);
         String fName = "trimmed_video_";
         if (fileName != null && !fileName.isEmpty())
             fName = fileName;
         File newFile = new File(path + File.separator +
-                (fName) + "." + TrimmerUtils.getFileExtension(this, uri));
-        while (newFile.exists()) {
+                (fName) + fileDateTime + "." + TrimmerUtils.getFileExtension(this, uri));
+      /*  while (newFile.exists()) {
             fileNo++;
             newFile = new File(path + File.separator +
                     (fName + fileNo) + "." + TrimmerUtils.getFileExtension(this, uri));
-        }
+        }*/
         return String.valueOf(newFile);
     }
 
@@ -570,8 +580,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
                         dialog.dismiss();
                 } else {
                     // Failed case:
-                    // line 497 command fails on some devices in
-                    // that case retrying with accurateCmt
+                    // line 489 command fails on some devices in
+                    // that case retrying with accurateCmt as alternative command
                     if (retry && !isAccurateCut && compressOption == null) {
                         File newFile = new File(outputPath);
                         if (newFile.exists())

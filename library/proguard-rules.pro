@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class com.arthenica.mobileffmpeg.Config {
+    native <methods>;
+    void log(long, int, byte[]);
+    void statistics(long, int, float, float, long , int, double, double);
+}
+
+-keep class com.arthenica.mobileffmpeg.AbiDetect {
+    native <methods>;
+}
