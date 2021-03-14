@@ -3,7 +3,7 @@
 [![](https://jitpack.io/v/a914-gowtham/Android-video-trimmer/month.svg)](https://jitpack.io/#a914-gowtham/Android-video-trimmer)
 
 # Android-video-trimmer
-📌 This library has a [issue](https://github.com/a914-gowtham/Android-video-trimmer/issues/35#issuecomment-798870992) on release build.it doesn't have any solution now. refer this [videotrimmer repo](https://github.com/a914-gowtham/videotrimmer) for your own implementation  
+#### 📌 This library has a [issue](https://github.com/a914-gowtham/Android-video-trimmer/issues/35#issuecomment-798870992) on release build. refer this [videotrimmer repo](https://github.com/a914-gowtham/videotrimmer) for your own implementation. new feature update and bug fixes will be updated in that repository till the issue is resolved. 
 
 ##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://github.com/a914-gowtham/videotrimmer/blob/master/app/release/app-release.apk). 
 
