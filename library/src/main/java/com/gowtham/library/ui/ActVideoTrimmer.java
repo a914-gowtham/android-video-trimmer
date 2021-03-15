@@ -105,7 +105,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private CompressOption compressOption;
 
-    private String outputPath, destinationPath;
+    private String outputPath;
 
     private int trimType;
 
@@ -207,7 +207,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
             TrimVideoOptions trimVideoOptions = getIntent().getParcelableExtra(TrimVideo.TRIM_VIDEO_OPTION);
             assert trimVideoOptions != null;
             trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);
-            destinationPath = trimVideoOptions.destination;
             fileName = trimVideoOptions.fileName;
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
             isAccurateCut = trimVideoOptions.accurateCut;
@@ -221,13 +220,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
                 maxToGap = trimVideoOptions.minToMax[1];
                 minFromGap = minFromGap != 0 ? minFromGap : totalDuration;
                 maxToGap = maxToGap != 0 ? maxToGap : totalDuration;
-            }
-            if (destinationPath != null) {
-                File outputDir = new File(destinationPath);
-                outputDir.mkdirs();
-                destinationPath = String.valueOf(outputDir);
-                if (!outputDir.isDirectory())
-                    throw new IllegalArgumentException("Destination file path error" + " " + destinationPath);
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -502,9 +494,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
     }
 
     private String getFileName() {
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "";
-        if (destinationPath != null)
-            path = destinationPath;
+        String path = getExternalFilesDir("Download").getPath();
         Calendar calender = Calendar.getInstance();
         String fileDateTime = calender.get(Calendar.YEAR) + "_" +
                 calender.get(Calendar.MONTH) + "_" +
@@ -627,11 +617,10 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private boolean checkStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            return checkPermission(
                     Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_MEDIA_LOCATION);
         } else
-            return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE);
+            return checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
 
     }
 

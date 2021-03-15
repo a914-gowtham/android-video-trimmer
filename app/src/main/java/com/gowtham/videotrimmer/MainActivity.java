@@ -102,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (trimType == 0) {
             TrimVideo.activity(data)
 //                  .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
-                    .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")
                     .start(this);
         } else if (trimType == 1) {
             TrimVideo.activity(data)
@@ -231,8 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean checkCamStoragePer() {
-        return checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
+        return checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
     }
 
     private boolean checkPermission(String... permissions) {

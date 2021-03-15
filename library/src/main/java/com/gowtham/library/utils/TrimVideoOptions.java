@@ -5,8 +5,6 @@ import android.os.Parcelable;
 
 public class TrimVideoOptions implements Parcelable {
 
-    public String destination;
-
     public String fileName;
 
     public TrimType trimType = TrimType.DEFAULT;
@@ -31,7 +29,6 @@ public class TrimVideoOptions implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.destination);
         dest.writeString(this.fileName);
         dest.writeInt(this.trimType == null ? -1 : this.trimType.ordinal());
         dest.writeLong(this.minDuration);
@@ -43,7 +40,6 @@ public class TrimVideoOptions implements Parcelable {
     }
 
     protected TrimVideoOptions(Parcel in) {
-        this.destination = in.readString();
         this.fileName = in.readString();
         int tmpTrimType = in.readInt();
         this.trimType = tmpTrimType == -1 ? null : TrimType.values()[tmpTrimType];

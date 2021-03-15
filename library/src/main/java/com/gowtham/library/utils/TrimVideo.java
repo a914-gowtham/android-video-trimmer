@@ -77,11 +77,6 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setDestination(final String destination) {
-            options.destination = destination;
-            return this;
-        }
-
         public void start(Activity activity) {
             validate();
             activity.startActivityForResult(getIntent(activity), VIDEO_TRIMMER_REQ_CODE);
