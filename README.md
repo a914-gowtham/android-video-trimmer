@@ -34,7 +34,6 @@ allprojects {
 TrimVideo.activity(String.valueOf(videoUri))
 //        .setCompressOption(new CompressOption()) //empty constructor for default compress option
           .setHideSeekBar(true)
-          .setDestination("/storage/emulated/0/DCIM/TESTFOLDER")  //default output path /storage/emulated/0/DOWNLOADS
           .start(this);
 ```
 3. Override `onActivityResult` method in your activity to get trim result
@@ -132,6 +131,8 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.5.10
+  * Write permission and setDestination removed due to the android 11 issues
 ### Version 1.5.2
   * Thumbnail loading optimized
 ### Version 1.5.1
