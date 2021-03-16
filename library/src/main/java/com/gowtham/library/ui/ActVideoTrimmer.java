@@ -1,7 +1,9 @@
 package com.gowtham.library.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
@@ -561,10 +563,37 @@ public class ActVideoTrimmer extends AppCompatActivity {
             FFmpeg.executeAsync(command, (executionId1, returnCode) -> {
                 if (returnCode == RETURN_CODE_SUCCESS) {
                     dialog.dismiss();
-                    Intent intent = new Intent();
-                    intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                    setResult(RESULT_OK, intent);
-                    finish();
+
+                    // dialog to ask user to open file location in file manager or not
+                    AlertDialog openFileLocationDialog = new AlertDialog.Builder(ActVideoTrimmer.this).create();
+                    openFileLocationDialog.setTitle(getString(R.string.open_file_location));
+                    openFileLocationDialog.setCancelable(true);
+
+                    // when user click yes
+                    openFileLocationDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.yes), (dialogInterface, i) -> {
+                        // open file location
+                        Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
+                        Uri uriFile = Uri.parse(outputPath);
+                        chooser.addCategory(Intent.CATEGORY_OPENABLE);
+                        chooser.setDataAndType(uriFile, "*/*");
+                        startActivity(chooser);
+                    });
+
+                    // when user click no and finish current activity
+                    openFileLocationDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.no), (dialogInterface, i) -> openFileLocationDialog.dismiss());
+
+                    // when user click no and finish current activity
+                    openFileLocationDialog.setOnDismissListener(dialogInterface -> {
+                        Intent intent = new Intent();
+                        intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    });
+
+
+                    openFileLocationDialog.show();
+
+
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     if (dialog.isShowing())
                         dialog.dismiss();

@@ -11,4 +11,7 @@
     <string name="edit_video">Edit Video</string>
     <string name="txt_compress_video">Compressing Video…</string>
     <string name="txt_edt_video">Edit Video</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="open_file_location">Open file location?</string>
 </resources>
