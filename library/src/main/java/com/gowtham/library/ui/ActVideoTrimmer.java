@@ -12,7 +12,6 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Menu;
@@ -58,12 +57,8 @@ import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Objects;
-import java.util.TimeZone;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
@@ -113,7 +108,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private long fixedGap, minGap, minFromGap, maxToGap;
 
-    private boolean hidePlayerSeek, isAccurateCut;
+    private boolean hidePlayerSeek, isAccurateCut,showFileLocationAlert;
 
     private CustomProgressView progressView;
 
@@ -213,6 +208,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
             isAccurateCut = trimVideoOptions.accurateCut;
             compressOption = trimVideoOptions.compressOption;
+            showFileLocationAlert = trimVideoOptions.showFileLocationAlert;
             fixedGap = trimVideoOptions.fixedDuration;
             fixedGap = fixedGap != 0 ? fixedGap : totalDuration;
             minGap = trimVideoOptions.minDuration;
@@ -509,11 +505,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
             fName = fileName;
         File newFile = new File(path + File.separator +
                 (fName) + fileDateTime + "." + TrimmerUtils.getFileExtension(this, uri));
-      /*  while (newFile.exists()) {
-            fileNo++;
-            newFile = new File(path + File.separator +
-                    (fName + fileNo) + "." + TrimmerUtils.getFileExtension(this, uri));
-        }*/
         return String.valueOf(newFile);
     }
 
@@ -563,37 +554,14 @@ public class ActVideoTrimmer extends AppCompatActivity {
             FFmpeg.executeAsync(command, (executionId1, returnCode) -> {
                 if (returnCode == RETURN_CODE_SUCCESS) {
                     dialog.dismiss();
-
-                    // dialog to ask user to open file location in file manager or not
-                    AlertDialog openFileLocationDialog = new AlertDialog.Builder(ActVideoTrimmer.this).create();
-                    openFileLocationDialog.setTitle(getString(R.string.open_file_location));
-                    openFileLocationDialog.setCancelable(true);
-
-                    // when user click yes
-                    openFileLocationDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.yes), (dialogInterface, i) -> {
-                        // open file location
-                        Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
-                        Uri uriFile = Uri.parse(outputPath);
-                        chooser.addCategory(Intent.CATEGORY_OPENABLE);
-                        chooser.setDataAndType(uriFile, "*/*");
-                        startActivity(chooser);
-                    });
-
-                    // when user click no and finish current activity
-                    openFileLocationDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.no), (dialogInterface, i) -> openFileLocationDialog.dismiss());
-
-                    // when user click no and finish current activity
-                    openFileLocationDialog.setOnDismissListener(dialogInterface -> {
+                    if(showFileLocationAlert)
+                        showLocationAlert();
+                    else{
                         Intent intent = new Intent();
                         intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
                         setResult(RESULT_OK, intent);
                         finish();
-                    });
-
-
-                    openFileLocationDialog.show();
-
-
+                    }
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     if (dialog.isShowing())
                         dialog.dismiss();
@@ -617,6 +585,35 @@ public class ActVideoTrimmer extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void showLocationAlert() {
+        // dialog to ask user to open file location in file manager or not
+        AlertDialog openFileLocationDialog = new AlertDialog.Builder(ActVideoTrimmer.this).create();
+        openFileLocationDialog.setTitle(getString(R.string.open_file_location));
+        openFileLocationDialog.setCancelable(true);
+
+        // when user click yes
+        openFileLocationDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.yes), (dialogInterface, i) -> {
+            // open file location
+            Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
+            Uri uriFile = Uri.parse(outputPath);
+            chooser.addCategory(Intent.CATEGORY_OPENABLE);
+            chooser.setDataAndType(uriFile, "*/*");
+            startActivity(chooser);
+        });
+
+        // when user click no and finish current activity
+        openFileLocationDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.no), (dialogInterface, i) -> openFileLocationDialog.dismiss());
+
+        // when user click no and finish current activity
+        openFileLocationDialog.setOnDismissListener(dialogInterface -> {
+            Intent intent = new Intent();
+            intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+        openFileLocationDialog.show();
     }
 
     private String[] getAccurateCmd() {

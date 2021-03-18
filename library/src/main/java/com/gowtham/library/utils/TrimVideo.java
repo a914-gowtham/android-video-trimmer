@@ -57,6 +57,11 @@ public class TrimVideo {
             return this;
         }
 
+        public ActivityBuilder showFileLocationAlert() {
+            options.showFileLocationAlert = true;
+            return this;
+        }
+
         public ActivityBuilder setAccurateCut(final boolean accurate) {
             options.accurateCut = accurate;
             return this;

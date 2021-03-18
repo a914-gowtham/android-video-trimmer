@@ -24,6 +24,7 @@ import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
 import com.gowtham.library.utils.TrimVideo;
+import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 
