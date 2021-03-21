@@ -551,37 +551,37 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
-            FFmpeg.executeAsync(command, (executionId1, returnCode) -> {
-                if (returnCode == RETURN_CODE_SUCCESS) {
+            int result= FFmpeg.execute(command);
+            if(result==0){
+                dialog.dismiss();
+                if(showFileLocationAlert)
+                    showLocationAlert();
+                else{
+                    Intent intent = new Intent();
+                    intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+            }else if(result==255){
+                LogMessage.v("Command cancelled");
+                if (dialog.isShowing())
                     dialog.dismiss();
-                    if(showFileLocationAlert)
-                        showLocationAlert();
-                    else{
-                        Intent intent = new Intent();
-                        intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }
-                } else if (returnCode == RETURN_CODE_CANCEL) {
+            }else {
+                // Failed case:
+                // line 489 command fails on some devices in
+                // that case retrying with accurateCmt as alternative command
+                if (retry && !isAccurateCut && compressOption == null) {
+                    File newFile = new File(outputPath);
+                    if (newFile.exists())
+                        newFile.delete();
+                    execFFmpegBinary(getAccurateCmd(), false);
+                } else {
                     if (dialog.isShowing())
                         dialog.dismiss();
-                } else {
-                    // Failed case:
-                    // line 489 command fails on some devices in
-                    // that case retrying with accurateCmt as alternative command
-                    if (retry && !isAccurateCut && compressOption == null) {
-                        File newFile = new File(outputPath);
-                        if (newFile.exists())
-                            newFile.delete();
-                        execFFmpegBinary(getAccurateCmd(), false);
-                    } else {
-                        if (dialog.isShowing())
-                            dialog.dismiss();
-                        runOnUiThread(() ->
-                                Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
-                    }
+                    runOnUiThread(() ->
+                            Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
                 }
-            });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
