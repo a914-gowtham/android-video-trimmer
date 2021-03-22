@@ -59,10 +59,6 @@ import com.gowtham.library.utils.TrimmerUtils;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
-import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
-import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 
 public class ActVideoTrimmer extends AppCompatActivity {
