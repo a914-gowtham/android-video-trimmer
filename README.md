@@ -3,7 +3,6 @@
 [![](https://jitpack.io/v/a914-gowtham/Android-video-trimmer/month.svg)](https://jitpack.io/#a914-gowtham/Android-video-trimmer)
 
 # Android-video-trimmer
-#### 📌 This library has a [issue](https://github.com/a914-gowtham/Android-video-trimmer/issues/35#issuecomment-798870992) on release build. refer this [videotrimmer repo](https://github.com/a914-gowtham/videotrimmer) for your own implementation. new feature update and bug fixes will be updated in that repository till the issue is resolved. 
 
 ##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://github.com/a914-gowtham/videotrimmer/blob/master/app/release/app-release.apk). 
 
@@ -18,7 +17,7 @@
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.5.11'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.6.0'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -131,6 +130,8 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.6.0
+  * Ffmpeg-mobile version downgraded to 4.3.1-LTS to rectify release build issue
 ### Version 1.5.11
   * Write permission and setDestination removed due to the android 11 issues
 ### Version 1.5.2
