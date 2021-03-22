@@ -4,7 +4,7 @@
 
 # Android-video-trimmer
 
-##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://github.com/a914-gowtham/videotrimmer/blob/master/app/release/app-release.apk). 
+##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://play.google.com/store/apps/details?id=com.videotrimmer.videotrimmerdemo). 
 
 ![](https://github.com/a914-gowtham/Android-video-trimmer/blob/master/demo.gif)
 
