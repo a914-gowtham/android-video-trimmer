@@ -59,6 +59,7 @@ import com.gowtham.library.utils.TrimmerUtils;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
@@ -551,37 +552,41 @@ public class ActVideoTrimmer extends AppCompatActivity {
 
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
-            int result= FFmpeg.execute(command);
-            if(result==0){
-                dialog.dismiss();
-                if(showFileLocationAlert)
-                    showLocationAlert();
-                else{
-                    Intent intent = new Intent();
-                    intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                    setResult(RESULT_OK, intent);
-                    finish();
-                }
-            }else if(result==255){
-                LogMessage.v("Command cancelled");
-                if (dialog.isShowing())
+            new Thread(() -> {
+                int result= FFmpeg.execute(command);
+                if(result==0){
                     dialog.dismiss();
-            }else {
-                // Failed case:
-                // line 489 command fails on some devices in
-                // that case retrying with accurateCmt as alternative command
-                if (retry && !isAccurateCut && compressOption == null) {
-                    File newFile = new File(outputPath);
-                    if (newFile.exists())
-                        newFile.delete();
-                    execFFmpegBinary(getAccurateCmd(), false);
-                } else {
+                    if(showFileLocationAlert)
+                        showLocationAlert();
+                    else{
+                        Intent intent = new Intent();
+                        intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                }else if(result==255){
+                    LogMessage.v("Command cancelled");
                     if (dialog.isShowing())
                         dialog.dismiss();
-                    runOnUiThread(() ->
-                            Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
+                }else {
+                    // Failed case:
+                    // line 489 command fails on some devices in
+                    // that case retrying with accurateCmt as alternative command
+                    if (retry && !isAccurateCut && compressOption == null) {
+                        File newFile = new File(outputPath);
+                        if (newFile.exists())
+                            newFile.delete();
+                        execFFmpegBinary(getAccurateCmd(), false);
+                    } else {
+                        if (dialog.isShowing())
+                            dialog.dismiss();
+                        runOnUiThread(() ->
+                                Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
+                    }
                 }
-            }
+            }).start();
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
