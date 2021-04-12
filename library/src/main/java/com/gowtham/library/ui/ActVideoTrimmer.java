@@ -117,7 +117,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
         setContentView(R.layout.act_video_trimmer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setUpToolBar(getSupportActionBar(), getString(R.string.txt_edt_video));
+        TrimVideoOptions trimVideoOptions = getIntent().getParcelableExtra(TrimVideo.TRIM_VIDEO_OPTION);
+        setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
     }
@@ -151,7 +152,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         try {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-            actionBar.setTitle(title);
+            actionBar.setTitle(title != null ? title : getString(R.string.txt_edt_video));
         } catch (Exception e) {
             e.printStackTrace();
         }
