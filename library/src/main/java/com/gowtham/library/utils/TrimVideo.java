@@ -1,6 +1,5 @@
 package com.gowtham.library.utils;
 
-
 import android.app.Activity;
 import android.content.Intent;
 
@@ -82,11 +81,16 @@ public class TrimVideo {
             return this;
         }
 
+        public ActivityBuilder setTitle(String title) {
+            options.title = title;
+            return this;
+        }
+
         public void start(Activity activity) {
             validate();
             activity.startActivityForResult(getIntent(activity), VIDEO_TRIMMER_REQ_CODE);
         }
-        
+
         public void start(Fragment fragment) {
             validate();
             fragment.startActivityForResult(getIntent(fragment.getActivity()), VIDEO_TRIMMER_REQ_CODE);

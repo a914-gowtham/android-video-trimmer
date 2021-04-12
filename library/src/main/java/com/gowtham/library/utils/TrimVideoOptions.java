@@ -19,6 +19,8 @@ public class TrimVideoOptions implements Parcelable {
 
     public long[] minToMax;
 
+    public String title;
+
     public CompressOption compressOption;
 
     public TrimVideoOptions() {
@@ -39,6 +41,7 @@ public class TrimVideoOptions implements Parcelable {
         dest.writeByte(this.accurateCut ? (byte) 1 : (byte) 0);
         dest.writeByte(this.showFileLocationAlert ? (byte) 1 : (byte) 0);
         dest.writeLongArray(this.minToMax);
+        dest.writeString(this.title);
         dest.writeParcelable(this.compressOption, flags);
     }
 
@@ -52,6 +55,7 @@ public class TrimVideoOptions implements Parcelable {
         this.accurateCut = in.readByte() != 0;
         this.showFileLocationAlert = in.readByte() != 0;
         this.minToMax = in.createLongArray();
+        this.title = in.readString();
         this.compressOption = in.readParcelable(CompressOption.class.getClassLoader());
     }
 
