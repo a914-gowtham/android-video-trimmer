@@ -41,6 +41,11 @@ public class TrimVideo {
             return this;
         }
 
+        public ActivityBuilder setLocal(final String local) {
+            options.local = local;
+            return this;
+        }
+
         public ActivityBuilder setHideSeekBar(final boolean hide) {
             options.hideSeekBar = hide;
             return this;
