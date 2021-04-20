@@ -3,6 +3,7 @@ package com.gowtham.library.ui;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,11 +26,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.akexorcist.localizationactivity.ui.LocalizationActivity;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -51,6 +52,7 @@ import com.gowtham.library.R;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.CustomProgressView;
 import com.gowtham.library.utils.FileUtils;
+import com.gowtham.library.utils.LocaleHelper;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimVideoOptions;
@@ -58,15 +60,15 @@ import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 
 
-public class ActVideoTrimmer extends AppCompatActivity {
-
-    private PlayerView playerView;
+public class ActVideoTrimmer extends LocalizationActivity {
 
     private static final int PER_REQ_CODE = 115;
-
+    private PlayerView playerView;
     private SimpleExoPlayer videoPlayer;
 
     private ImageView imagePlayPause;
@@ -96,19 +98,29 @@ public class ActVideoTrimmer extends AppCompatActivity {
     private android.os.Handler seekHandler;
 
     private long currentDuration, lastClickedTime;
-
+    Runnable updateSeekbar = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                currentDuration = videoPlayer.getCurrentPosition() / 1000;
+                if (!videoPlayer.getPlayWhenReady())
+                    return;
+                if (currentDuration <= lastMaxValue)
+                    seekbarController.setMinStartValue((int) currentDuration).apply();
+                else
+                    videoPlayer.setPlayWhenReady(false);
+            } finally {
+                seekHandler.postDelayed(updateSeekbar, 1000);
+            }
+        }
+    };
     private CompressOption compressOption;
-
     private String outputPath;
-
+    private String local;
     private int trimType;
-
     private long fixedGap, minGap, minFromGap, maxToGap;
-
-    private boolean hidePlayerSeek, isAccurateCut,showFileLocationAlert;
-
+    private boolean hidePlayerSeek, isAccurateCut, showFileLocationAlert;
     private CustomProgressView progressView;
-
     private String fileName;
 
     @Override
@@ -121,6 +133,11 @@ public class ActVideoTrimmer extends AppCompatActivity {
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(LocaleHelper.onAttach(base, "en"));
     }
 
     @Override
@@ -205,6 +222,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             fileName = trimVideoOptions.fileName;
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
             isAccurateCut = trimVideoOptions.accurateCut;
+            local = trimVideoOptions.local;
             compressOption = trimVideoOptions.compressOption;
             showFileLocationAlert = trimVideoOptions.showFileLocationAlert;
             fixedGap = trimVideoOptions.fixedDuration;
@@ -220,6 +238,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+        setLanguage(new Locale(local));
     }
 
     private void onVideoClicked() {
@@ -432,7 +451,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
         stopRepeatingTask();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_done, menu);
@@ -495,8 +513,8 @@ public class ActVideoTrimmer extends AppCompatActivity {
         String fileDateTime = calender.get(Calendar.YEAR) + "_" +
                 calender.get(Calendar.MONTH) + "_" +
                 calender.get(Calendar.DAY_OF_MONTH) + "_" +
-                calender.get(Calendar.HOUR_OF_DAY) + "_"+
-                calender.get(Calendar.MINUTE) + "_"+
+                calender.get(Calendar.HOUR_OF_DAY) + "_" +
+                calender.get(Calendar.MINUTE) + "_" +
                 calender.get(Calendar.SECOND);
         String fName = "trimmed_video_";
         if (fileName != null && !fileName.isEmpty())
@@ -550,22 +568,22 @@ public class ActVideoTrimmer extends AppCompatActivity {
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
             new Thread(() -> {
-                int result= FFmpeg.execute(command);
-                if(result==0){
+                int result = FFmpeg.execute(command);
+                if (result == 0) {
                     dialog.dismiss();
-                    if(showFileLocationAlert)
+                    if (showFileLocationAlert)
                         showLocationAlert();
-                    else{
+                    else {
                         Intent intent = new Intent();
                         intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
                         setResult(RESULT_OK, intent);
                         finish();
                     }
-                }else if(result==255){
+                } else if (result == 255) {
                     LogMessage.v("Command cancelled");
                     if (dialog.isShowing())
                         dialog.dismiss();
-                }else {
+                } else {
                     // Failed case:
                     // line 489 command fails on some devices in
                     // that case retrying with accurateCmt as alternative command
@@ -667,7 +685,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
         return false;
     }
 
-
     private boolean isPermissionOk(int... results) {
         boolean isAllGranted = true;
         for (int result : results) {
@@ -686,22 +703,5 @@ public class ActVideoTrimmer extends AppCompatActivity {
     void stopRepeatingTask() {
         seekHandler.removeCallbacks(updateSeekbar);
     }
-
-    Runnable updateSeekbar = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                currentDuration = videoPlayer.getCurrentPosition() / 1000;
-                if (!videoPlayer.getPlayWhenReady())
-                    return;
-                if (currentDuration <= lastMaxValue)
-                    seekbarController.setMinStartValue((int) currentDuration).apply();
-                else
-                    videoPlayer.setPlayWhenReady(false);
-            } finally {
-                seekHandler.postDelayed(updateSeekbar, 1000);
-            }
-        }
-    };
 
 }

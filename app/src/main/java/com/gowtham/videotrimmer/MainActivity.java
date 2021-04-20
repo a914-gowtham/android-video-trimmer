@@ -3,7 +3,6 @@ package com.gowtham.videotrimmer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,23 +23,17 @@ import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
 import com.gowtham.library.utils.TrimVideo;
-import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int REQUEST_TAKE_VIDEO = 552;
-
-    private VideoView videoView;
-
-    private MediaController mediaController;
-
-    private EditText edtFixedGap, edtMinGap, edtMinFrom, edtMAxTo;
-
-    private int trimType;
-
     private static final String TAG = "MainActivity";
+    private VideoView videoView;
+    private MediaController mediaController;
+    private EditText edtFixedGap, edtMinGap, edtMinFrom, edtMAxTo;
+    private int trimType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         edtMinFrom = findViewById(R.id.edt_min_from);
         edtMAxTo = findViewById(R.id.edt_max_to);
         mediaController = new MediaController(this);
-
 
 
         findViewById(R.id.btn_default_trim).setOnClickListener(this);
@@ -102,21 +94,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void openTrimActivity(String data) {
         if (trimType == 0) {
             TrimVideo.activity(data)
+                    .setLocal("ar")
                     .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
                     .start(this);
         } else if (trimType == 1) {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.FIXED_DURATION)
                     .setFixedDuration(getEdtValueLong(edtFixedGap))
+                    .setLocal("ar")
                     .start(this);
         } else if (trimType == 2) {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.MIN_DURATION)
+                    .setLocal("ar")
                     .setMinDuration(getEdtValueLong(edtMinGap))
                     .start(this);
         } else {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.MIN_MAX_DURATION)
+                    .setLocal("ar")
                     .setMinToMax(getEdtValueLong(edtMinFrom), getEdtValueLong(edtMAxTo))
                     .start(this);
         }
