@@ -130,6 +130,8 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.6.2
+  * Arabic localization and custom toolbar title
 ### Version 1.6.1
   * Compression issue fixed
 ### Version 1.6.0
