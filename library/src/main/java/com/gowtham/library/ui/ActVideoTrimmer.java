@@ -240,7 +240,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        setLanguage(new Locale(local));
+        if(local!=null)
+          setLanguage(new Locale(local));
     }
 
     private void onVideoClicked() {
