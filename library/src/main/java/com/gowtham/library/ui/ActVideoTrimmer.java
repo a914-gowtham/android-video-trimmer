@@ -58,6 +58,8 @@ import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Locale;
@@ -138,7 +140,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     }
 
     @Override
-    protected void attachBaseContext(Context base) {
+    protected void attachBaseContext(@NotNull Context base) {
         super.attachBaseContext(LocaleHelper.onAttach(base, "en"));
     }
 
@@ -240,8 +242,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        if(local!=null)
-          setLanguage(new Locale(local));
+          setLanguage(new Locale(local!=null ? local : "en"));
     }
 
     private void onVideoClicked() {
