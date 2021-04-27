@@ -16,6 +16,8 @@ android {
         versionCode 1
         versionName "1.0"
         consumerProguardFiles "consumer-rules.pro"
+
+        ndkVersion '22.1.7171670'
     }
 
     sourceSets {
@@ -55,6 +57,8 @@ dependencies {
     implementation 'com.arthenica:mobile-ffmpeg-min:4.3.1.LTS'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.akexorcist:localization:1.2.9'
+
 }
 repositories {
     mavenCentral()

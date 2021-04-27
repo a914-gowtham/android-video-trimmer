@@ -1,0 +1,17 @@
+<resources>
+    <string name="txt_empty" />
+    <string name="txt_done">تم</string>
+    <string name="txt_title_not_supported">تنبيه!</string>
+    <string name="txt_msg_not_supported">عذرا ، هذا الجهاز غير مدعوم</string>
+    <string name="txt_trimming_video">جارٍ معالجة الفيديو…</string>
+    <string name="txt_failed_to_trim">فشل القطع</string>
+    <string name="txt_cancel">إلغاء</string>
+    <string name="txt_dlah">\\</string>
+    <string name="txt_smaller">يجب أن يكون الفيديو أصغر من</string>
+    <string name="edit_video">تحرير الفيديو</string>
+    <string name="txt_compress_video">ضغط الفيديو…</string>
+    <string name="txt_edt_video">تحرير الفيديو</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+    <string name="open_file_location">افتح مكان ملف؟</string>
+</resources>

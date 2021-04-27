@@ -3,6 +3,7 @@ package com.gowtham.library.ui;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,11 +26,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.akexorcist.localizationactivity.ui.LocalizationActivity;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -51,6 +52,7 @@ import com.gowtham.library.R;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.CustomProgressView;
 import com.gowtham.library.utils.FileUtils;
+import com.gowtham.library.utils.LocaleHelper;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimVideoOptions;
@@ -58,10 +60,11 @@ import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 
 
-public class ActVideoTrimmer extends AppCompatActivity {
+public class ActVideoTrimmer extends LocalizationActivity {
 
     private static final int PER_REQ_CODE = 115;
     private PlayerView playerView;
@@ -114,6 +117,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
     };
     private CompressOption compressOption;
     private String outputPath;
+    private String local;
     private int trimType;
     private long fixedGap, minGap, minFromGap, maxToGap;
     private boolean hidePlayerSeek, isAccurateCut, showFileLocationAlert;
@@ -131,6 +135,11 @@ public class ActVideoTrimmer extends AppCompatActivity {
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(LocaleHelper.onAttach(base, "en"));
     }
 
     @Override
@@ -159,7 +168,6 @@ public class ActVideoTrimmer extends AppCompatActivity {
     }
 
     private void setUpToolBar(ActionBar actionBar, String title) {
-
         try {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
@@ -216,6 +224,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
             fileName = trimVideoOptions.fileName;
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
             isAccurateCut = trimVideoOptions.accurateCut;
+            local = trimVideoOptions.local;
             compressOption = trimVideoOptions.compressOption;
             showFileLocationAlert = trimVideoOptions.showFileLocationAlert;
             fixedGap = trimVideoOptions.fixedDuration;
@@ -231,6 +240,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+        setLanguage(new Locale(local));
     }
 
     private void onVideoClicked() {
@@ -386,7 +396,7 @@ public class ActVideoTrimmer extends AppCompatActivity {
     /**
      * will be called whenever seekBar range changes
      * it checks max duration is exceed or not.
-     * and disabling and enabling done menuItem according to it
+     * and disabling and enabling done menuItem
      *
      * @param minVal left thumb value of seekBar
      * @param maxVal right thumb value of seekBar
