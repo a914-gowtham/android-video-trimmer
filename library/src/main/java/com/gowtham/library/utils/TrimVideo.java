@@ -2,6 +2,7 @@ package com.gowtham.library.utils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,7 +14,8 @@ public class TrimVideo {
     public static int VIDEO_TRIMMER_REQ_CODE = 324;
 
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
-            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path";
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path",
+            BUNDLE = "bundle";
 
     public static ActivityBuilder activity(String uri) {
         return new ActivityBuilder(uri);
@@ -122,8 +124,10 @@ public class TrimVideo {
 
         private Intent getIntent(Activity activity) {
             Intent intent = new Intent(activity, ActVideoTrimmer.class);
-            intent.putExtra(TRIM_VIDEO_URI, videoUri);
-            intent.putExtra(TRIM_VIDEO_OPTION, options);
+            Bundle bundle=new Bundle();
+            bundle.putString(TRIM_VIDEO_URI, videoUri);
+            bundle.putParcelable(TRIM_VIDEO_OPTION, options);
+            intent.putExtras(bundle);
             return intent;
         }
     }
