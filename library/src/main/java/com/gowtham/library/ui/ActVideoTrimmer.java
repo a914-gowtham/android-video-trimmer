@@ -491,7 +491,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             showProcessingDialog();
             String[] complexCommand;
             if (compressOption != null)
-                complexCommand = getDefaultCmd();
+                complexCommand = getCompressionCmd();
             else if (isAccurateCut) {
                 //no changes in video quality
                 //faster trimming command and given duration will be accurate
@@ -528,14 +528,19 @@ public class ActVideoTrimmer extends LocalizationActivity {
         return String.valueOf(newFile);
     }
 
-    private String[] getDefaultCmd() {
+    private String[] getCompressionCmd() {
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(String.valueOf(uri));
         String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
         int h = Integer.parseInt(height);
-
+        int rotation=TrimmerUtils.getVideoRotation(this,uri);
+        if(rotation==90 || rotation==360){
+            int temp=w;
+            w=h;
+            h=temp;
+        }
         //Default compression option
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
                 || !compressOption.getBitRate().equals("0k")) {

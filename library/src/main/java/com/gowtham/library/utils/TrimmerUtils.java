@@ -160,6 +160,19 @@ public class TrimmerUtils {
         return null;
     }
 
+    public static int getVideoRotation(Activity context, Uri videoPath) {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context,videoPath);
+            int rotation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            retriever.release();
+            return rotation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static String formatSeconds(long timeInSeconds) {
         long hours = timeInSeconds / 3600;
         long secondsLeft = timeInSeconds - hours * 3600;
