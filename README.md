@@ -17,7 +17,7 @@
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.6.4'
+    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.6.5'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -130,6 +130,8 @@ TrimVideo.activity(videoUri)
   * Sample - Android Kitkat 4.4+ (API 19)
   
 ## ChangeLog
+### Version 1.6.5
+  * Video stretch issue 2 [#46](https://github.com/a914-gowtham/Android-video-trimmer/issues/46)
 ### Version 1.6.4
   * Video stretch issue [#46](https://github.com/a914-gowtham/Android-video-trimmer/issues/46)
 ### Version 1.6.3
