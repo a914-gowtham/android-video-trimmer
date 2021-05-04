@@ -536,7 +536,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
         int h = Integer.parseInt(height);
         int rotation=TrimmerUtils.getVideoRotation(this,uri);
-        if(rotation==90 || rotation==360){
+        if(rotation==90 || rotation==270){
             int temp=w;
             w=h;
             h=temp;
