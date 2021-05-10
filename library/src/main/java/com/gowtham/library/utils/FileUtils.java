@@ -21,7 +21,7 @@ public class FileUtils {
 
     @SuppressLint("NewApi")
     public static String getPath(Context context, final Uri uri) {
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        final boolean isKitKat = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
         String selection = null;
         String[] selectionArgs = null;
         if (isKitKat ) {
