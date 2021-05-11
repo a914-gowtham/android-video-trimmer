@@ -11,7 +11,7 @@ import com.gowtham.library.ui.ActVideoTrimmer;
 
 public class TrimVideo {
 
-    public static int VIDEO_TRIMMER_REQ_CODE = 324;
+    public static final int VIDEO_TRIMMER_REQ_CODE = 324;
 
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
             TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path",
