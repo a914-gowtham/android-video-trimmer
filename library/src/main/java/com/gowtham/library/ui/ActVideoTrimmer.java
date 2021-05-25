@@ -133,6 +133,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         bundle=getIntent().getExtras();
+        bundle.setClassLoader(TrimVideoOptions.class.getClassLoader());
         TrimVideoOptions trimVideoOptions = bundle.getParcelable(TrimVideo.TRIM_VIDEO_OPTION);
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
         toolbar.setNavigationOnClickListener(v -> finish());

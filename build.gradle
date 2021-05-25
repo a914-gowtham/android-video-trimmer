@@ -3,6 +3,7 @@ buildscript {
     ext.kotlin_version = '1.4.0'
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
     dependencies {

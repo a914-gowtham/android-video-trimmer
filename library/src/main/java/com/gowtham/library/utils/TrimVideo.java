@@ -30,7 +30,7 @@ public class TrimVideo {
         @Nullable
         private final String videoUri;
 
-        private TrimVideoOptions options;
+        private final TrimVideoOptions options;
 
         public ActivityBuilder(@Nullable String videoUri) {
             this.videoUri = videoUri;
