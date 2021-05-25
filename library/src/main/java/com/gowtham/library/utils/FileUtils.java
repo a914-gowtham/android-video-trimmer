@@ -21,7 +21,7 @@ public class FileUtils {
 
     @SuppressLint("NewApi")
     public static String getPath(Context context, final Uri uri) {
-        Boolean isKitkatOrAbove=Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        boolean isKitkatOrAbove=Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         String selection = null;
         String[] selectionArgs = null;
         if (isKitkatOrAbove) {
@@ -30,7 +30,7 @@ public class FileUtils {
                 final String[] split = docId.split(":");
                 final String type = split[0];
                 String fullPath = getPathFromExtSD(split);
-                if (fullPath != "") {
+                if (!fullPath.isEmpty()) {
                     return fullPath;
                 } else {
                     return null;
@@ -256,13 +256,11 @@ public class FileUtils {
      * @param newDirName if you want to create a directory, you can set this variable
      * @return
      */
-    private static String copyFileToInternalStorage(Context context,Uri uri,String newDirName) {
+    public static String copyFileToInternalStorage(Context context,Uri uri,String newDirName) {
         Uri returnUri = uri;
-
         Cursor returnCursor = context.getContentResolver().query(returnUri, new String[]{
                 OpenableColumns.DISPLAY_NAME,OpenableColumns.SIZE
         }, null, null, null);
-
 
         /*
          * Get the column indexes of the data in the Cursor,
@@ -272,7 +270,7 @@ public class FileUtils {
         int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
         int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
         returnCursor.moveToFirst();
-        String name = (returnCursor.getString(nameIndex));
+        String name = "temp_file"+System.currentTimeMillis();
         String size = (Long.toString(returnCursor.getLong(sizeIndex)));
 
         File output;
@@ -298,7 +296,7 @@ public class FileUtils {
 
             inputStream.close();
             outputStream.close();
-
+            returnCursor.close();
         }
         catch (Exception e) {
 

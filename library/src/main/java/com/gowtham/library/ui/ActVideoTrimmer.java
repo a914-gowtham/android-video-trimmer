@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +65,7 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 
 public class ActVideoTrimmer extends LocalizationActivity {
@@ -99,6 +101,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private android.os.Handler seekHandler;
 
     private Bundle bundle;
+
+    private ProgressBar progressBar;
 
     private long currentDuration, lastClickedTime;
     Runnable updateSeekbar = new Runnable() {
@@ -154,6 +158,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         txtStartDuration = findViewById(R.id.txt_start_duration);
         txtEndDuration = findViewById(R.id.txt_end_duration);
         seekbarController = findViewById(R.id.seekbar_controller);
+        progressBar=findViewById(R.id.progress_circular);
         ImageView imageOne = findViewById(R.id.image_one);
         ImageView imageTwo = findViewById(R.id.image_two);
         ImageView imageThree = findViewById(R.id.image_three);
@@ -202,18 +207,36 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private void setDataInView() {
         try {
-            uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-            uri = Uri.parse(FileUtils.getPath(this, uri));
-            LogMessage.v("VideoUri:: " + uri);
-            totalDuration = TrimmerUtils.getDuration(this, uri);
-            imagePlayPause.setOnClickListener(v ->
-                    onVideoClicked());
-            Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
-                    onVideoClicked());
-            initTrimData();
-            buildMediaSource(uri);
-            loadThumbnails();
-            setUpSeekBar();
+            Runnable fileUriRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
+                    String path=FileUtils.getPath(ActVideoTrimmer.this, uri);
+                    if(TrimmerUtils.hasSpecialChar(path)) {
+                        LogMessage.v("VideoUri:: " + "hasSpecialChar");
+                      /*  path = FileUtils.copyFileToInternalStorage(ActVideoTrimmer.this, uri,
+                                "temp-files");*/
+                    }
+                    uri = Uri.parse(path);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LogMessage.v("VideoUri:: " + uri);
+                            progressBar.setVisibility(View.GONE);
+                            totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, uri);
+                            imagePlayPause.setOnClickListener(v ->
+                                    onVideoClicked());
+                            Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
+                                    onVideoClicked());
+                            initTrimData();
+                            buildMediaSource(uri);
+                            loadThumbnails();
+                            setUpSeekBar();
+                        }
+                    });
+                }
+            };
+            Executors.newSingleThreadExecutor().execute(fileUriRunnable);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -221,6 +244,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private void initTrimData() {
         try {
+            bundle.setClassLoader(TrimVideoOptions.class.getClassLoader());
             TrimVideoOptions trimVideoOptions = bundle.getParcelable(TrimVideo.TRIM_VIDEO_OPTION);
             assert trimVideoOptions != null;
             trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);

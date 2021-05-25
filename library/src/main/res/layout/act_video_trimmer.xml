@@ -6,63 +6,62 @@
     android:background="#303030"
     tools:ignore="ContentDescription">
 
-    <LinearLayout
-        style="@style/FView">
+    <LinearLayout style="@style/FView">
 
         <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
             android:id="@+id/toolbar"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
             android:background="#212121"
-            app:titleTextColor="@color/colorWhite"
-            android:layout_height="?attr/actionBarSize"/>
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:titleTextColor="@color/colorWhite" />
 
-        <RelativeLayout
-            style="@style/VWView">
+        <RelativeLayout style="@style/VWView">
 
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/player_view_lib"
-            style="@style/FView"
-            app:use_controller="false"
-            android:layout_gravity="center_vertical"/>
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/player_view_lib"
+                style="@style/FView"
+                android:layout_gravity="center_vertical"
+                app:use_controller="false" />
 
             <ImageView
+                android:id="@+id/image_play_pause"
                 style="@style/WView"
-                android:src="@drawable/ic_video_play_lib"
-                android:padding="12dp"
-                android:visibility="gone"
                 android:layout_centerInParent="true"
                 android:background="@drawable/shape_circle_lib"
-                android:id="@+id/image_play_pause"
-                />
+                android:padding="12dp"
+                android:src="@drawable/ic_video_play_lib"
+                android:visibility="gone" />
 
+            <ProgressBar
+                android:id="@+id/progress_circular"
+                android:layout_centerInParent="true"
+                style="@style/WView" />
         </RelativeLayout>
+
     </LinearLayout>
 
-    <include
-        layout="@layout/view_video_controller"/>
+    <include layout="@layout/view_video_controller" />
 
     <TextView
+        android:id="@+id/txt_start_duration"
         style="@style/TxtRgStyle22"
         android:layout_gravity="bottom"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="40dp"
-        android:textSize="14sp"
-        android:visibility="gone"
         android:textColor="#80FFFFFF"
-        android:id="@+id/txt_start_duration"
-        />
+        android:textSize="14sp"
+        android:visibility="gone" />
 
 
     <TextView
+        android:id="@+id/txt_end_duration"
         style="@style/TxtRgStyle22"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="10dp"
-        android:textSize="14sp"
-        android:visibility="gone"
-        android:textColor="#80FFFFFF"
-        android:id="@+id/txt_end_duration"
         android:layout_marginBottom="40dp"
-        />
+        android:textColor="#80FFFFFF"
+        android:textSize="14sp"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

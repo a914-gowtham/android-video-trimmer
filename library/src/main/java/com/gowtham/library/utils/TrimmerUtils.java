@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TrimmerUtils {
 
@@ -215,5 +217,12 @@ public class TrimmerUtils {
 
     public static String clearNull(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    public static boolean hasSpecialChar(String value){
+        value=clearNull(value);
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(value);
+        return m.find();
     }
 }
