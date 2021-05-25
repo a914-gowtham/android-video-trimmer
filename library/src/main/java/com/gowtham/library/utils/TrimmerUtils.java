@@ -16,6 +16,8 @@ import android.webkit.MimeTypeMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;

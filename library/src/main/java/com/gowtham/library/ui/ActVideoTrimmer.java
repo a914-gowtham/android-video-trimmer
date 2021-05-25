@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.gson.Gson;
 import com.gowtham.library.R;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.CustomProgressView;
@@ -104,6 +105,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private ProgressBar progressBar;
 
+    private TrimVideoOptions trimVideoOptions;
+
     private long currentDuration, lastClickedTime;
     Runnable updateSeekbar = new Runnable() {
         @Override
@@ -136,9 +139,10 @@ public class ActVideoTrimmer extends LocalizationActivity {
         setContentView(R.layout.act_video_trimmer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        bundle=getIntent().getExtras();
-        bundle.setClassLoader(TrimVideoOptions.class.getClassLoader());
-        TrimVideoOptions trimVideoOptions = bundle.getParcelable(TrimVideo.TRIM_VIDEO_OPTION);
+        bundle = getIntent().getExtras();
+        Gson gson = new Gson();
+        String videoOption = bundle.getString(TrimVideo.TRIM_VIDEO_OPTION);
+        trimVideoOptions = gson.fromJson(videoOption, TrimVideoOptions.class);
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
@@ -158,7 +162,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         txtStartDuration = findViewById(R.id.txt_start_duration);
         txtEndDuration = findViewById(R.id.txt_end_duration);
         seekbarController = findViewById(R.id.seekbar_controller);
-        progressBar=findViewById(R.id.progress_circular);
+        progressBar = findViewById(R.id.progress_circular);
         ImageView imageOne = findViewById(R.id.image_one);
         ImageView imageTwo = findViewById(R.id.image_two);
         ImageView imageThree = findViewById(R.id.image_three);
@@ -211,8 +215,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 @Override
                 public void run() {
                     uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-                    String path=FileUtils.getPath(ActVideoTrimmer.this, uri);
-                    if(TrimmerUtils.hasSpecialChar(path)) {
+                    String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
+                    if (TrimmerUtils.hasSpecialChar(path)) {
                         LogMessage.v("VideoUri:: " + "hasSpecialChar");
                       /*  path = FileUtils.copyFileToInternalStorage(ActVideoTrimmer.this, uri,
                                 "temp-files");*/
@@ -244,8 +248,6 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private void initTrimData() {
         try {
-            bundle.setClassLoader(TrimVideoOptions.class.getClassLoader());
-            TrimVideoOptions trimVideoOptions = bundle.getParcelable(TrimVideo.TRIM_VIDEO_OPTION);
             assert trimVideoOptions != null;
             trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);
             fileName = trimVideoOptions.fileName;
@@ -267,7 +269,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-          setLanguage(new Locale(local!=null ? local : "en"));
+        setLanguage(new Locale(local != null ? local : "en"));
     }
 
     private void onVideoClicked() {
@@ -560,11 +562,11 @@ public class ActVideoTrimmer extends LocalizationActivity {
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
         int h = Integer.parseInt(height);
-        int rotation=TrimmerUtils.getVideoRotation(this,uri);
-        if(rotation==90 || rotation==270){
-            int temp=w;
-            w=h;
-            h=temp;
+        int rotation = TrimmerUtils.getVideoRotation(this, uri);
+        if (rotation == 90 || rotation == 270) {
+            int temp = w;
+            w = h;
+            h = temp;
         }
         //Default compression option
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0

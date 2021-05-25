@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
 import com.gowtham.library.ui.ActVideoTrimmer;
 
 public class TrimVideo {
@@ -129,9 +130,10 @@ public class TrimVideo {
 
         private Intent getIntent(Activity activity) {
             Intent intent = new Intent(activity, ActVideoTrimmer.class);
+            Gson gson = new Gson();
             Bundle bundle=new Bundle();
             bundle.putString(TRIM_VIDEO_URI, videoUri);
-            bundle.putParcelable(TRIM_VIDEO_OPTION, options);
+            bundle.putString(TRIM_VIDEO_OPTION, gson.toJson(options));
             intent.putExtras(bundle);
             return intent;
         }
