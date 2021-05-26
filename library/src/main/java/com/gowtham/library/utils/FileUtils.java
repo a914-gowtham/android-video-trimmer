@@ -110,8 +110,6 @@ public class FileUtils {
                 }
                 selection = "_id=?";
                 selectionArgs = new String[]{split[1]};
-
-
                 return getDataColumn(context, contentUri, selection,
                         selectionArgs);
             }
@@ -135,9 +133,8 @@ public class FileUtils {
                 }
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 {
-
                     // return getFilePathFromURI(context,uri);
-                    return copyFileToInternalStorage(context,uri,"userfiles");
+                    return copyFileToInternalStorage(context,uri,"");
                     // return getRealPathFromURI(context,uri);
                 }
                 else
@@ -270,7 +267,7 @@ public class FileUtils {
         int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
         int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
         returnCursor.moveToFirst();
-        String name = "temp_file"+System.currentTimeMillis();
+        String name = "temp_file";
         String size = (Long.toString(returnCursor.getLong(sizeIndex)));
 
         File output;
@@ -307,7 +304,7 @@ public class FileUtils {
     }
 
     private static String getFilePathForWhatsApp(Context context,Uri uri){
-        return  copyFileToInternalStorage(context,uri,"whatsapp");
+        return  copyFileToInternalStorage(context,uri,"");
     }
 
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
@@ -355,4 +352,38 @@ public class FileUtils {
     private static boolean isGoogleDriveUri(Uri uri) {
         return "com.google.android.apps.docs.storage".equals(uri.getAuthority()) || "com.google.android.apps.docs.storage.legacy".equals(uri.getAuthority());
     }
+
+    public static void getAllVideos(Context context) {
+        Uri returnUri;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            returnUri= MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        else
+            returnUri=MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+
+        Cursor cursor= context.getContentResolver().query(
+                returnUri,new String[]{
+                        MediaStore.Video.Media._ID,
+                        MediaStore.Video.Media.DISPLAY_NAME,
+                        MediaStore.Video.Media.WIDTH,
+                        MediaStore.Video.Media.HEIGHT,
+                },null,null,null);
+
+        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+        int displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
+        int widthColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.WIDTH);
+        int heightColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.HEIGHT);
+
+        while (cursor.moveToNext()){
+            long id = cursor.getLong(idColumn);
+            String displayName = cursor.getString(displayNameColumn);
+            int width = cursor.getInt(widthColumn);
+            int height = cursor.getInt(heightColumn);
+            Uri contentUri = ContentUris.withAppendedId(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    id
+            );
+            LogMessage.v("Video "+displayName+"  contentUri "+contentUri);
+        }
+    }
+
 }

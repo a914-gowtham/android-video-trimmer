@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.media.MediaMetadataRetriever;
@@ -15,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -211,34 +213,24 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private void setDataInView() {
         try {
-            Runnable fileUriRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-                    String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
-                    if (TrimmerUtils.hasSpecialChar(path)) {
-                        LogMessage.v("VideoUri:: " + "hasSpecialChar");
-                      /*  path = FileUtils.copyFileToInternalStorage(ActVideoTrimmer.this, uri,
-                                "temp-files");*/
-                    }
-                    uri = Uri.parse(path);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            LogMessage.v("VideoUri:: " + uri);
-                            progressBar.setVisibility(View.GONE);
-                            totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, uri);
-                            imagePlayPause.setOnClickListener(v ->
-                                    onVideoClicked());
-                            Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
-                                    onVideoClicked());
-                            initTrimData();
-                            buildMediaSource(uri);
-                            loadThumbnails();
-                            setUpSeekBar();
-                        }
-                    });
-                }
+            Runnable fileUriRunnable = () -> {
+                uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
+                String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
+                uri = Uri.parse(path);
+                runOnUiThread(() -> {
+                    LogMessage.v("VideoUri:: " + uri);
+                    LogMessage.v("VideoUri:: " + uri.getPath());
+                    progressBar.setVisibility(View.GONE);
+                    totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, uri);
+                    imagePlayPause.setOnClickListener(v ->
+                            onVideoClicked());
+                    Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
+                            onVideoClicked());
+                    initTrimData();
+                    buildMediaSource(uri);
+                    loadThumbnails();
+                    setUpSeekBar();
+                });
             };
             Executors.newSingleThreadExecutor().execute(fileUriRunnable);
         } catch (Exception e) {
@@ -479,6 +471,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             videoPlayer.release();
         if (progressView != null && progressView.isShowing())
             progressView.dismiss();
+        deleteFile("temp_file");
         stopRepeatingTask();
     }
 
@@ -539,7 +532,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     }
 
     private String getFileName() {
-        String path = getExternalFilesDir("Download").getPath();
+        String path = getExternalFilesDir("TrimmedVideo").getPath();
         Calendar calender = Calendar.getInstance();
         String fileDateTime = calender.get(Calendar.YEAR) + "_" +
                 calender.get(Calendar.MONTH) + "_" +

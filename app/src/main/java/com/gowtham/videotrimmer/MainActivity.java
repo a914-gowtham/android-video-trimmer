@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.gowtham.library.utils.CompressOption;
+import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
 import com.gowtham.library.utils.TrimVideo;
