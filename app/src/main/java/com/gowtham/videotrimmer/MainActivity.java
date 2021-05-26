@@ -1,6 +1,7 @@
 package com.gowtham.videotrimmer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,6 +13,10 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,17 +29,62 @@ import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
 import com.gowtham.library.utils.TrimVideo;
+import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int REQUEST_TAKE_VIDEO = 552;
     private static final String TAG = "MainActivity";
     private VideoView videoView;
     private MediaController mediaController;
     private EditText edtFixedGap, edtMinGap, edtMinFrom, edtMAxTo;
     private int trimType;
+
+    ActivityResultLauncher<Intent> videoTrimResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK &&
+                        result.getData() != null) {
+                    Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                    Log.d(TAG, "Trimmed path:: " + uri);
+                    videoView.setMediaController(mediaController);
+                    videoView.setVideoURI(uri);
+                    videoView.requestFocus();
+                    videoView.start();
+
+                    videoView.setOnPreparedListener(mediaPlayer -> {
+                        mediaController.setAnchorView(videoView);
+                    });
+
+                    String filepath = String.valueOf(uri);
+                    File file = new File(filepath);
+                    long length = file.length();
+                    Log.d(TAG, "Video size:: " + (length / 1024));
+                } else
+                    LogMessage.v("videoTrimResultLauncher data is null");
+            });
+
+    ActivityResultLauncher<Intent> takeOrSelectVideoResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK &&
+                        result.getData() != null) {
+                    Intent data = result.getData();
+                  //check video duration if needed
+        /*        if (TrimmerUtils.getDuration(this,data.getData())<=30){
+                    Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
+                    return;
+                }*/
+                    if (data.getData() != null) {
+                        LogMessage.v("Video path:: " + data.getData());
+                        openTrimActivity(String.valueOf(data.getData()));
+                    } else {
+                        Toast.makeText(this, "video uri is null", Toast.LENGTH_SHORT).show();
+                    }
+                } else
+                    LogMessage.v("takeVideoResultLauncher data is null");
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,67 +104,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_min_max_gap).setOnClickListener(this);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            if (requestCode == TrimVideo.VIDEO_TRIMMER_REQ_CODE && data != null) {
-                Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(data));
-                Log.d(TAG, "Trimmed path:: " + uri);
-                videoView.setMediaController(mediaController);
-                videoView.setVideoURI(uri);
-                videoView.requestFocus();
-                videoView.start();
-
-                videoView.setOnPreparedListener(mediaPlayer -> {
-                    mediaController.setAnchorView(videoView);
-                });
-
-                String filepath = String.valueOf(uri);
-                File file = new File(filepath);
-                long length = file.length();
-                Log.d(TAG, "Video size:: " + (length / 1024));
-            } else if (requestCode == REQUEST_TAKE_VIDEO && resultCode == RESULT_OK) {
-            /*    //check video duration if needed
-                if (TrimmerUtils.getVideoDuration(this,data.getData())<=30){
-                    Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
-                    return;
-                }*/
-                if (data.getData() != null) {
-                    LogMessage.v("Video path:: " + data.getData());
-                    openTrimActivity(String.valueOf(data.getData()));
-                } else {
-                    Toast.makeText(this, "video uri is null", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void openTrimActivity(String data) {
         if (trimType == 0) {
             TrimVideo.activity(data)
                     .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
-                    .start(this);
+                    .start(this, videoTrimResultLauncher);
         } else if (trimType == 1) {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.FIXED_DURATION)
                     .setFixedDuration(getEdtValueLong(edtFixedGap))
                     .setLocal("ar")
-                    .start(this);
+                    .start(this, videoTrimResultLauncher);
         } else if (trimType == 2) {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.MIN_DURATION)
                     .setLocal("ar")
                     .setMinDuration(getEdtValueLong(edtMinGap))
-                    .start(this);
+                    .start(this, videoTrimResultLauncher);
         } else {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.MIN_MAX_DURATION)
                     .setLocal("ar")
                     .setMinToMax(getEdtValueLong(edtMinFrom), getEdtValueLong(edtMAxTo))
-                    .start(this);
+                    .start(this, videoTrimResultLauncher);
         }
     }
 
@@ -194,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             Intent intent = new Intent("android.media.action.VIDEO_CAPTURE");
             intent.putExtra("android.intent.extra.durationLimit", 30);
-            startActivityForResult(intent, REQUEST_TAKE_VIDEO);
+            takeOrSelectVideoResultLauncher.launch(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -205,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent();
             intent.setType("video/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Video"), REQUEST_TAKE_VIDEO);
+            takeOrSelectVideoResultLauncher.launch(Intent.createChooser(intent, "Select Video"));
         } catch (Exception e) {
             e.printStackTrace();
         }

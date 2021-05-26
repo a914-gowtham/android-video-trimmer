@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -12,11 +13,8 @@ import com.gowtham.library.ui.ActVideoTrimmer;
 
 public class TrimVideo {
 
-    public static final int VIDEO_TRIMMER_REQ_CODE = 324;
-
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
-            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path",
-            BUNDLE = "bundle";
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path";
 
     public static ActivityBuilder activity(String uri) {
         return new ActivityBuilder(uri);
@@ -94,14 +92,15 @@ public class TrimVideo {
             return this;
         }
 
-        public void start(Activity activity) {
+        public void start(Activity activity,
+                          ActivityResultLauncher<Intent> launcher) {
             validate();
-            activity.startActivityForResult(getIntent(activity), VIDEO_TRIMMER_REQ_CODE);
+            launcher.launch(getIntent(activity));
         }
 
-        public void start(Fragment fragment) {
+        public void start(Fragment fragment,ActivityResultLauncher<Intent> launcher) {
             validate();
-            fragment.startActivityForResult(getIntent(fragment.getActivity()), VIDEO_TRIMMER_REQ_CODE);
+            launcher.launch(getIntent(fragment.getActivity()));
         }
 
         private void validate() {
@@ -129,7 +128,7 @@ public class TrimVideo {
         }
 
         private Intent getIntent(Activity activity) {
-            Intent intent = new Intent(activity, ActVideoTrimmer.class);
+            Intent intent = new Intent(activity,  ActVideoTrimmer.class);
             Gson gson = new Gson();
             Bundle bundle=new Bundle();
             bundle.putString(TRIM_VIDEO_URI, videoUri);

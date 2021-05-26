@@ -3,7 +3,7 @@ package com.gowtham.library.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class CompressOption implements Parcelable {
+public class CompressOption {
 
     private int frameRate=30;
 
@@ -55,39 +55,4 @@ public class CompressOption implements Parcelable {
         return bitRate;
     }
 
-    public static Creator<CompressOption> getCREATOR() {
-        return CREATOR;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.frameRate);
-        dest.writeString(this.bitRate);
-        dest.writeInt(this.width);
-        dest.writeInt(this.height);
-    }
-
-    protected CompressOption(Parcel in) {
-        this.frameRate = in.readInt();
-        this.bitRate = in.readString();
-        this.width = in.readInt();
-        this.height = in.readInt();
-    }
-
-    public static final Creator<CompressOption> CREATOR = new Creator<CompressOption>() {
-        @Override
-        public CompressOption createFromParcel(Parcel source) {
-            return new CompressOption(source);
-        }
-
-        @Override
-        public CompressOption[] newArray(int size) {
-            return new CompressOption[size];
-        }
-    };
 }
