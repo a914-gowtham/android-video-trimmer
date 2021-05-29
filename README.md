@@ -1,5 +1,5 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
-[![](https://jitpack.io/v/a914-gowtham/Android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/Android-video-trimmer)
+[![](https://jitpack.io/v/a914-gowtham/Android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/android-video-trimmer)
 [![](https://jitpack.io/v/a914-gowtham/Android-video-trimmer/month.svg)](https://jitpack.io/#a914-gowtham/Android-video-trimmer)
 
 # Android-video-trimmer
@@ -17,7 +17,7 @@
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:Android-video-trimmer:1.6.5'
+    implementation 'com.github.a914-gowtham:android-video-trimmer:1.7.0'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -28,22 +28,42 @@ allprojects {
 	}
 }
 ```
-2. Add the code for opening Trim Activity.
+2. Create a global variable for ActivityResultLauncher
+
+```java
+    //Java
+    ActivityResultLauncher<Intent> startForResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK &&
+                        result.getData() != null) {
+                    Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                    Log.d(TAG, "Trimmed path:: " + uri);
+                   
+                } else
+                    LogMessage.v("videoTrimResultLauncher data is null");
+            });
+```
+
+```kotlin
+    //Kotlin
+    val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { 
+    result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK &&
+                        result.getData() != null) {
+                Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()))
+                Log.d(TAG, "Trimmed path:: " + uri)
+         }else 
+          	LogMessage.v("videoTrimResultLauncher data is null");
+    }   
+```
+
+3. Add the code for opening Trim Activity.
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
 //        .setCompressOption(new CompressOption()) //empty constructor for default compress option
           .setHideSeekBar(true)
-          .start(this);
-```
-3. Override `onActivityResult` method in your activity to get trim result
-```java
-@Override
-public void onActivityResult(int requestCode, int resultCode, Intent data) {
-  if (requestCode == TrimVideo.VIDEO_TRIMMER_REQ_CODE && data != null) {
-            Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(data));
-            Log.d(TAG,"Trimmed path:: "+uri);
-        }
-}
+          .start(this,startForResult);
 ```
 ## Customization
 
@@ -90,7 +110,7 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 #### TrimType Default:
 ```java
 TrimVideo.activity(videoUri)
-          .start(this);
+          .start(this,startForResult);
 ```
 
 #### TrimType Fixed Duration:
@@ -98,7 +118,7 @@ TrimVideo.activity(videoUri)
 TrimVideo.activity(videoUri)
           .setTrimType(TrimType.FIXED_DURATION)
           .setFixedDuration(30) //seconds
-          .start(this);
+          .start(this,startForResult);
 ```
 
 #### TrimType Minimum Duration:
@@ -106,7 +126,7 @@ TrimVideo.activity(videoUri)
 TrimVideo.activity(videoUri)
           .setTrimType(TrimType.MIN_DURATION)
           .setMinDuration(30) //seconds
-          .start(this);
+          .start(this,startForResult);
 ```
 
 #### TrimType Min-Max Duration:
@@ -114,7 +134,7 @@ TrimVideo.activity(videoUri)
 TrimVideo.activity(videoUri)
           .setTrimType(TrimType.MIN_MAX_DURATION)
           .setMinToMax(10, 30)  //seconds
-          .start(this);
+          .start(this,startForResult);
 ```
 
 ## Proguard Rules
