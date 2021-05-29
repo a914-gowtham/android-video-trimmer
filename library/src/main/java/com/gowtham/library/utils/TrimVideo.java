@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -42,7 +43,7 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setLocal(final String local) {
+        public ActivityBuilder setLocal(@NonNull final String local) {
             options.local = local;
             return this;
         }
@@ -57,7 +58,7 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setFileName(final String fileName) {
+        public ActivityBuilder setFileName(@NonNull final String fileName) {
             options.fileName = fileName;
             return this;
         }
@@ -87,7 +88,7 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setTitle(String title) {
+        public ActivityBuilder setTitle(@NonNull String title) {
             options.title = title;
             return this;
         }

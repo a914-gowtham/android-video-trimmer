@@ -1,8 +1,5 @@
 package com.gowtham.library.utils;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 public class CompressOption {
 
     private int frameRate=30;

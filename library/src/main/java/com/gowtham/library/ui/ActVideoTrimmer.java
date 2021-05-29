@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.media.MediaMetadataRetriever;
@@ -16,7 +15,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -215,11 +213,11 @@ public class ActVideoTrimmer extends LocalizationActivity {
         try {
             Runnable fileUriRunnable = () -> {
                 uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-                String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
+//              String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
+                String path=FileUtils.getRealPath(ActVideoTrimmer.this,uri);
                 uri = Uri.parse(path);
                 runOnUiThread(() -> {
                     LogMessage.v("VideoUri:: " + uri);
-                    LogMessage.v("VideoUri:: " + uri.getPath());
                     progressBar.setVisibility(View.GONE);
                     totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, uri);
                     imagePlayPause.setOnClickListener(v ->

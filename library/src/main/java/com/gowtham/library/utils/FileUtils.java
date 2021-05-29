@@ -19,6 +19,19 @@ import java.io.InputStream;
 
 public class FileUtils {
 
+    public static String getRealPath(Context context,Uri uri) {
+        String[] projection = { MediaStore.Video.Media.DATA };
+        Cursor cursor= context.getContentResolver().query(
+                uri,projection,null,null,null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+        cursor.moveToFirst();
+        String path=cursor.getString(column_index);
+        cursor.close();
+        if(path==null)
+            return FileUtils.getPath(context, uri);
+        return path;
+    }
+
     @SuppressLint("NewApi")
     public static String getPath(Context context, final Uri uri) {
         boolean isKitkatOrAbove=Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
