@@ -1,3 +1,5 @@
 include ':library'
 include ':app'
 rootProject.name = "VideoTrimmer"
+include ':ffmpeg'
+project(':ffmpeg').projectDir = new File('./ffmpeg/ffmpeg')

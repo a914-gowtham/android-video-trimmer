@@ -32,7 +32,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.akexorcist.localizationactivity.ui.LocalizationActivity;
-import com.arthenica.mobileffmpeg.FFmpeg;
+import com.arthenica.ffmpegkit.FFmpegKit;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
@@ -214,7 +214,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             Runnable fileUriRunnable = () -> {
                 uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
 //              String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
-                String path=FileUtils.getRealPath(ActVideoTrimmer.this,uri);
+                String path = FileUtils.getRealPath(ActVideoTrimmer.this, uri);
                 uri = Uri.parse(path);
                 runOnUiThread(() -> {
                     LogMessage.v("VideoUri:: " + uri);
@@ -522,7 +522,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                         "-i", String.valueOf(uri),
                         "-t",
                         TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                        "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
+                        "-c", "copy", outputPath};
             }
             execFFmpegBinary(complexCommand, true);
         } else
@@ -595,7 +595,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
             new Thread(() -> {
-                int result = FFmpeg.execute(command);
+                int result = FFmpegKit.execute(command).getReturnCode().getValue();
                 if (result == 0) {
                     dialog.dismiss();
                     if (showFileLocationAlert)
@@ -664,10 +664,12 @@ public class ActVideoTrimmer extends LocalizationActivity {
     }
 
     private String[] getAccurateCmd() {
-        return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue)
-                , "-i", String.valueOf(uri), "-t",
-                TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                "-async", "1", outputPath};
+        return new String[]{
+                "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+                "-i", String.valueOf(uri),
+                "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                outputPath
+        };
     }
 
     private void showProcessingDialog() {
@@ -680,7 +682,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             txtCancel.setOnClickListener(v -> {
                 dialog.dismiss();
-                FFmpeg.cancel();
+                FFmpegKit.cancel();
             });
             dialog.show();
         } catch (Exception e) {
