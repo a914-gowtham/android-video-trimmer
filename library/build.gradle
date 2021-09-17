@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 android {
     compileSdkVersion 31
-    buildToolsVersion "30.0.3"
+    buildToolsVersion "31.0.0"
 
     packagingOptions {
         pickFirst 'lib/x86/libc++_shared.so'
