@@ -289,7 +289,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             videoPlayer.addMediaSource(mediaSource);
             videoPlayer.prepare();
             videoPlayer.setPlayWhenReady(true);
-            videoPlayer.addListener(new Player.EventListener() {
+            videoPlayer.addListener(new Player.Listener() {
                 @Override
                 public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
                     imagePlayPause.setVisibility(playWhenReady ? View.GONE :

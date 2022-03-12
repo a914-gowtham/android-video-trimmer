@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         result.getData() != null) {
                     Intent data = result.getData();
                   //check video duration if needed
-        /*        if (TrimmerUtils.getDuration(this,data.getData())<=30){
+           /*        if (TrimmerUtils.getDuration(this,data.getData())<=30){
                     Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
                     return;
                 }*/
