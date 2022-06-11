@@ -36,21 +36,21 @@ import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
-import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
-import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.gson.Gson;
 import com.gowtham.library.R;
+import com.gowtham.library.ui.seekbar.widgets.CrystalRangeSeekbar;
+import com.gowtham.library.ui.seekbar.widgets.CrystalSeekbar;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.CustomProgressView;
 import com.gowtham.library.utils.FileUtils;
@@ -72,8 +72,8 @@ import java.util.concurrent.Executors;
 public class ActVideoTrimmer extends LocalizationActivity {
 
     private static final int PER_REQ_CODE = 115;
-    private PlayerView playerView;
-    private SimpleExoPlayer videoPlayer;
+    private StyledPlayerView playerView;
+    private ExoPlayer videoPlayer;
 
     private ImageView imagePlayPause;
 
@@ -194,7 +194,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
      **/
     private void initPlayer() {
         try {
-            videoPlayer = new SimpleExoPlayer.Builder(this).build();
+            videoPlayer = new ExoPlayer.Builder(this).build();
             playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
             playerView.setPlayer(videoPlayer);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -284,7 +284,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private void buildMediaSource(Uri mUri) {
         try {
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, getString(R.string.app_name));
+            DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
             MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(mUri));
             videoPlayer.addMediaSource(mediaSource);
             videoPlayer.prepare();
@@ -306,6 +306,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                             break;
                         case Player.STATE_READY:
                             isVideoEnded = false;
+                            imagePlayPause.setVisibility(View.GONE);
                             startProgress();
                             LogMessage.v("onPlayerStateChanged: Ready to play.");
                             break;
@@ -489,7 +490,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_done) {
-            //prevent multiple clicks
+            //preventing multiple clicks
             if (SystemClock.elapsedRealtime() - lastClickedTime < 800)
                 return true;
             lastClickedTime = SystemClock.elapsedRealtime();

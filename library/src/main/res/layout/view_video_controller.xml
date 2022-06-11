@@ -10,7 +10,7 @@
     android:gravity="center_vertical"
     tools:ignore="ContentDescription,UnusedAttribute">
 
-    <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+    <com.gowtham.library.ui.seekbar.widgets.CrystalRangeSeekbar
         android:id="@+id/range_seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
         app:right_thumb_image="@drawable/ic_max_seek"
         />
 
-    <com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar
+    <com.gowtham.library.ui.seekbar.widgets.CrystalSeekbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -34,7 +34,7 @@
         android:layout_marginEnd="30dp"
         app:bar_color="@android:color/transparent"
         app:bar_highlight_color="@android:color/transparent"
-        app:left_thumb_image="@drawable/ic_vertical_line"
+        app:thumb_image="@drawable/ic_vertical_line"
         android:id="@+id/seekbar_controller"
         android:elevation="4dp"
         android:padding="8dp"
