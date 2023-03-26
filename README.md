@@ -19,7 +19,7 @@
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
-    implementation 'com.github.a914-gowtham:android-video-trimmer:1.7.3'
+    implementation 'com.github.a914-gowtham:android-video-trimmer:1.7.4'
  }
  ```
  + Add to project's root `build.gradle` file:
