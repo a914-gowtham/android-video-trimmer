@@ -2,7 +2,7 @@
 [![](https://jitpack.io/v/jZAIKO/android-video-trimmer.svg)](https://jitpack.io/#jZAIKO/android-video-trimmer)
 [![](https://jitpack.io/v/a914-gowtham/android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/android-video-trimmer)
 
-## 📚 This library is not actively maintained. feel free to fork it
+## 📚 This library is not maintained. feel free to fork it
 
 # Android-video-trimmer
 
