@@ -28,7 +28,7 @@ public class FileUtils {
         String path=cursor.getString(column_index);
         cursor.close();
         if(path==null){
-            path= FileUtilsKt.getFileDataFromUriId(context, uri);
+            path= FileUtilKt.getFileDataFromUriId(context, uri);
         }
         if(path==null)
             return FileUtils.getPath(context, uri);

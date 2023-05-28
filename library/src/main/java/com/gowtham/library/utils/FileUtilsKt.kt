@@ -5,7 +5,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 
-object FileUtilsKt {
+object FileUtilKt {
 
     @JvmStatic
     fun getFileDataFromUriId(context: Context, uri: Uri): String? {
