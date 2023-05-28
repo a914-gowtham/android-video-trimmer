@@ -50,6 +50,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.1'
     implementation 'com.akexorcist:localization:1.2.9'
     implementation 'com.google.code.gson:gson:2.9.0'
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
 }
 repositories {
     mavenCentral()
