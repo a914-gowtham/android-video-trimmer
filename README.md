@@ -16,8 +16,9 @@
 + Add the dependency to your app `build.gradle` file
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
+ // replace x.y.z with latest available jitpack version
  dependencies {
-    implementation 'com.github.a914-gowtham:android-video-trimmer:1.7.3'
+    implementation 'com.github.a914-gowtham:android-video-trimmer:x.y.z'
  }
  ```
  + Add to project's root `build.gradle` file:
