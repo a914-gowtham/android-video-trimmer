@@ -64,4 +64,4 @@
         android:textSize="14sp"
         android:visibility="gone" />
 
-</android.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
