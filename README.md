@@ -68,7 +68,9 @@ TrimVideo.activity(String.valueOf(videoUri))
           .start(this,startForResult);
 ```
 
-## Using Different Modes Ordered By Output Speed:
+
+
+## Using Different Modes (Ordered By Output Speed):
 
 #### Default Mode:
 ```java
