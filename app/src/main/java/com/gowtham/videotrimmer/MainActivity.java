@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
                     Log.d(TAG, "Trimmed path:: " + uri);
 
+                    videoPlayer.stop();
+                    videoPlayer.clearMediaItems();
                     DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
                     MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
                     videoPlayer.addMediaSource(mediaSource);
@@ -122,10 +124,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        videoPlayer.pause();
+    }
+
+
     private void openTrimActivity(String data) {
         if (trimType == 0) {
             TrimVideo.activity(data)
-                    .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
+//                  .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
                     .start(this, videoTrimResultLauncher);
         } else if (trimType == 1) {
             TrimVideo.activity(data)
