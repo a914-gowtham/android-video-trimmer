@@ -64,13 +64,31 @@ allprojects {
 3. Add the code for opening Trim Activity.
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
-//        .setCompressOption(new CompressOption()) //empty constructor for default compress option
           .setHideSeekBar(true)
           .start(this,startForResult);
 ```
-## Customization
 
-#### Video Compress:
+## Using Different Modes Ordered By Output Speed:
+
+#### Default Mode:
+```java
+TrimVideo.activity(String.valueOf(videoUri))
+          .setHideSeekBar(true)
+          .start(this,startForResult);
+```
+   1. Fastest processing, No losses in quality((no compression), will be low accurate(2-3 secs)
+
+#### Accuracy Mode:
+```java
+TrimVideo.activity(String.valueOf(videoUri))
+          .setAccurateCut(true) 
+          .setHideSeekBar(true)
+          .start(this,startForResult);
+```
+   1. Faster processing, No losses in quality(no compression), accurate trimming. 
+
+
+#### Video Compress Mode:
 ```java
 .setCompressOption(new CompressOption(frameRate,bitRate,width,height))  //pass empty constructor for default compressoption
 ```
@@ -79,10 +97,12 @@ TrimVideo.activity(String.valueOf(videoUri))
                Use 1M for better quality output 
   * `Width` Width of the video output video. 
   * `Height` Height of the video output video.Use `TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));` method to get the width and height of the video
-   1. No need to use accurateCut while using video compressOption
-   2. Video compressing process will take more time
-```java 
-.setCompressOption(new CompressOption(30,"1M",460,320))
+   1. Video compressing process will take more time
+```java
+TrimVideo.activity(String.valueOf(videoUri))
+          .setCompressOption(new CompressOption(30,"1M",460,320)) //pass empty constructor for default compress values
+          .setHideSeekBar(true)
+          .start(this,startForResult);
 //You could divide the width and height by 2. when try to compress a large resolution videos ex:Taken from camera
 /*int[] wAndh=TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));
     int width=wAndh[0];
@@ -95,13 +115,8 @@ TrimVideo.activity(String.valueOf(videoUri))
      .setCompressOption(new CompressOption(30,"400k",width,height))   
    */
 ```
-   
-#### Video Trim Accuracy:
-```java
-.setAccurateCut(true) //default value is false 
-```
-   1. AccurateCut **false** makes video trimming faster and less accuracy(approx. 1-3secs) 
-   2. AccurateCut **true** makes video trimming slower and high accuracy
+
+## Customization
 
 #### Hide Player Seekbar:
 ```java
