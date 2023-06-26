@@ -61,14 +61,17 @@ public class FileUtils {
                         if (cursor != null && cursor.moveToFirst()) {
                             String fileName = cursor.getString(0);
                             String path = Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName;
-                            if (!TextUtils.isEmpty(path)) {
+                            if (!TextUtils.isEmpty(path) && new File(path).exists()) {
                                 return path;
+                            }else{
+                                return copyFileToInternalStorage(context,uri,"");
                             }
                         }
                     }
                     finally {
-                        if (cursor != null)
+                        if (cursor != null) {
                             cursor.close();
+                        }
                     }
                     id = DocumentsContract.getDocumentId(uri);
                     if (!TextUtils.isEmpty(id)) {
