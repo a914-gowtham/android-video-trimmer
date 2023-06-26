@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -466,12 +467,19 @@ public class ActVideoTrimmer extends LocalizationActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (videoPlayer != null)
-            videoPlayer.release();
-        if (progressView != null && progressView.isShowing())
-            progressView.dismiss();
-        deleteFile("temp_file");
-        stopRepeatingTask();
+        try {
+            if (videoPlayer != null)
+                videoPlayer.release();
+            if (progressView != null && progressView.isShowing())
+                progressView.dismiss();
+            File f=new File(getCacheDir(), "temp_video_file");
+            if(f.exists()){
+                f.delete();
+            }
+            stopRepeatingTask();
+        } catch (Exception e) {
+            LogMessage.e(Log.getStackTraceString(e));
+        }
     }
 
     @Override

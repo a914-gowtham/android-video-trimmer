@@ -21,6 +21,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.cocosw.bottomsheet.BottomSheet;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
@@ -31,8 +41,8 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
-    private VideoView videoView;
-    private MediaController mediaController;
+    private StyledPlayerView playerView;
+    private ExoPlayer videoPlayer;
     private EditText edtFixedGap, edtMinGap, edtMinFrom, edtMAxTo;
     private int trimType;
 
@@ -43,14 +53,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         result.getData() != null) {
                     Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
                     Log.d(TAG, "Trimmed path:: " + uri);
-                    videoView.setMediaController(mediaController);
-                    videoView.setVideoURI(uri);
-                    videoView.requestFocus();
-                    videoView.start();
 
-                    videoView.setOnPreparedListener(mediaPlayer -> {
-                        mediaController.setAnchorView(videoView);
-                    });
+                    DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
+                    MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(uri));
+                    videoPlayer.addMediaSource(mediaSource);
+                    videoPlayer.prepare();
+                    videoPlayer.setPlayWhenReady(true);
 
                     String filepath = String.valueOf(uri);
                     File file = new File(filepath);
@@ -85,18 +93,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        videoView = findViewById(R.id.video_view);
+        playerView = findViewById(R.id.player_view);
         edtFixedGap = findViewById(R.id.edt_fixed_gap);
         edtMinGap = findViewById(R.id.edt_min_gap);
         edtMinFrom = findViewById(R.id.edt_min_from);
         edtMAxTo = findViewById(R.id.edt_max_to);
-        mediaController = new MediaController(this);
-
 
         findViewById(R.id.btn_default_trim).setOnClickListener(this);
         findViewById(R.id.btn_fixed_gap).setOnClickListener(this);
         findViewById(R.id.btn_min_gap).setOnClickListener(this);
         findViewById(R.id.btn_min_max_gap).setOnClickListener(this);
+        initPlayer();
+    }
+
+    private void initPlayer() {
+        try {
+            videoPlayer = new ExoPlayer.Builder(this).build();
+            playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+            playerView.setPlayer(videoPlayer);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.CONTENT_TYPE_MOVIE)
+                    .build();
+            videoPlayer.setAudioAttributes(audioAttributes, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void openTrimActivity(String data) {
@@ -147,6 +169,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         trimType = 0;
         if (checkCamStoragePer())
             showVideoOptions();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        videoPlayer.release();
     }
 
     private void onFixedTrimClicked() {
