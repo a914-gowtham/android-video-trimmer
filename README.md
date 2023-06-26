@@ -167,7 +167,8 @@ TrimVideo.activity(videoUri)
   * Library - Android Kitkat 4.4+ (API 19)
   * Sample - Android Kitkat 4.4+ (API 19)
   
-## ChangeLog
+## [ChangeLog](https://github.com/a914-gowtham/android-video-trimmer/releases)
+
 ### Version 1.6.5
   * Video stretch issue 2 [#46](https://github.com/a914-gowtham/Android-video-trimmer/issues/46)
 ### Version 1.6.4
