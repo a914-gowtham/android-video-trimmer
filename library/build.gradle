@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 33
         consumerProguardFiles "consumer-rules.pro"
 
@@ -22,7 +22,7 @@ android {
     sourceSets {
         main {
             assets.srcDirs = ['assets']
-            jni.srcDirs = [] //disable automatic ndk-build
+            //disable automatic ndk-build
             jniLibs.srcDirs = ['../path/to/libs']
         }
     }
@@ -34,9 +34,10 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+    namespace 'com.gowtham.library'
 
 }
 
