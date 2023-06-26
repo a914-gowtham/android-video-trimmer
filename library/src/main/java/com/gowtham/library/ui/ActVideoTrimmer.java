@@ -53,7 +53,7 @@ import com.gowtham.library.ui.seekbar.widgets.CrystalRangeSeekbar;
 import com.gowtham.library.ui.seekbar.widgets.CrystalSeekbar;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.CustomProgressView;
-import com.gowtham.library.utils.FileUtils;
+import com.gowtham.library.utils.FileUtilKt;
 import com.gowtham.library.utils.LocaleHelper;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimVideo;
@@ -83,7 +83,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private Dialog dialog;
 
-    private Uri uri;
+    private Uri filePath;
 
     private TextView txtStartDuration, txtEndDuration;
 
@@ -212,20 +212,20 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private void setDataInView() {
         try {
             Runnable fileUriRunnable = () -> {
-                uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-//              String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
-                String path=FileUtils.getRealPath(ActVideoTrimmer.this,uri);
-                uri = Uri.parse(path);
+                Uri uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
+                String path= FileUtilKt.getValidatedFileUri(ActVideoTrimmer.this,uri);
+                filePath = Uri.parse(path);
                 runOnUiThread(() -> {
                     LogMessage.v("VideoUri:: " + uri);
+                    LogMessage.v("VideoPath:: " + filePath);
                     progressBar.setVisibility(View.GONE);
-                    totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, uri);
+                    totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, filePath);
                     imagePlayPause.setOnClickListener(v ->
                             onVideoClicked());
                     Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
                             onVideoClicked());
                     initTrimData();
-                    buildMediaSource(uri);
+                    buildMediaSource();
                     loadThumbnails();
                     setUpSeekBar();
                 });
@@ -282,10 +282,10 @@ public class ActVideoTrimmer extends LocalizationActivity {
             videoPlayer.seekTo(sec * 1000);
     }
 
-    private void buildMediaSource(Uri mUri) {
+    private void buildMediaSource() {
         try {
             DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
-            MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(mUri));
+            MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(filePath));
             videoPlayer.addMediaSource(mediaSource);
             videoPlayer.prepare();
             videoPlayer.setPlayWhenReady(true);
@@ -505,7 +505,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             //not exceed given maxDuration if has given
             outputPath = getFileName();
             LogMessage.v("outputPath::" + outputPath + new File(outputPath).exists());
-            LogMessage.v("sourcePath::" + uri);
+            LogMessage.v("sourcePath::" + filePath);
             videoPlayer.setPlayWhenReady(false);
             showProcessingDialog();
             String[] complexCommand;
@@ -520,7 +520,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 //fastest trimming command however, result duration
                 //will be low accurate(2-3 secs)
                 complexCommand = new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                        "-i", String.valueOf(uri),
+                        "-i", String.valueOf(filePath),
                         "-t",
                         TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
                         "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
@@ -543,18 +543,18 @@ public class ActVideoTrimmer extends LocalizationActivity {
         if (fileName != null && !fileName.isEmpty())
             fName = fileName;
         File newFile = new File(path + File.separator +
-                (fName) + fileDateTime + "." + TrimmerUtils.getFileExtension(this, uri));
+                (fName) + fileDateTime + "." + TrimmerUtils.getFileExtension(this, filePath));
         return String.valueOf(newFile);
     }
 
     private String[] getCompressionCmd() {
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-        metaRetriever.setDataSource(String.valueOf(uri));
+        metaRetriever.setDataSource(String.valueOf(filePath));
         String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
         int h = Integer.parseInt(height);
-        int rotation = TrimmerUtils.getVideoRotation(this, uri);
+        int rotation = TrimmerUtils.getVideoRotation(this, filePath);
         if (rotation == 90 || rotation == 270) {
             int temp = w;
             w = h;
@@ -564,7 +564,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
                 || !compressOption.getBitRate().equals("0k")) {
             return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(uri), "-s", compressOption.getWidth() + "x" +
+                    "-i", String.valueOf(filePath), "-s", compressOption.getWidth() + "x" +
                     compressOption.getHeight(),
                     "-r", String.valueOf(compressOption.getFrameRate()),
                     "-vcodec", "mpeg4", "-b:v",
@@ -577,7 +577,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             w = w / 2;
             h = Integer.parseInt(height) / 2;
             return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(uri),
+                    "-i", String.valueOf(filePath),
                     "-s", w + "x" + h, "-r", "30",
                     "-vcodec", "mpeg4", "-b:v",
                     "1M", "-b:a", "48000", "-ac", "2", "-ar", "22050",
@@ -585,7 +585,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                     TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
         } else {
             return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(uri), "-s", w + "x" + h, "-r",
+                    "-i", String.valueOf(filePath), "-s", w + "x" + h, "-r",
                     "30", "-vcodec", "mpeg4", "-b:v",
                     "400K", "-b:a", "48000", "-ac", "2", "-ar", "22050",
                     "-t",
@@ -666,7 +666,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private String[] getAccurateCmd() {
         return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue)
-                , "-i", String.valueOf(uri), "-t",
+                , "-i", String.valueOf(filePath), "-t",
                 TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
                 "-async", "1", outputPath};
     }

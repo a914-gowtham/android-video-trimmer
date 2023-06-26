@@ -13,23 +13,18 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.gowtham.library.utils.CompressOption;
-import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
 import com.gowtham.library.utils.TrimVideo;
-import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
 
