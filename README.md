@@ -99,7 +99,7 @@ TrimVideo.activity(String.valueOf(videoUri))
                Use 1M for better quality output 
   * `Width` Width of the video output video. 
   * `Height` Height of the video output video.Use `TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));` method to get the width and height of the video
-   1. Video compressing process will take more time
+   1. Video compressing process will take more time and duration will be accurate
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
           .setCompressOption(new CompressOption(30,"1M",460,320)) //pass empty constructor for default compress values
