@@ -583,7 +583,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         //Dividing high resolution video by 2(ex: taken with camera)
         else if (w >= 800) {
             w = w / 2;
-            h = Integer.parseInt(height) / 2;
+            h = h / 2;
             return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                     "-i", String.valueOf(filePath),
                     "-s", w + "x" + h, "-r", "30",
