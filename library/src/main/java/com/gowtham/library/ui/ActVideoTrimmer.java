@@ -33,7 +33,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.akexorcist.localizationactivity.ui.LocalizationActivity;
-import com.arthenica.mobileffmpeg.FFmpeg;
+import com.arthenica.ffmpegkit.FFmpegKit;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
@@ -335,11 +335,12 @@ public class ActVideoTrimmer extends LocalizationActivity {
         try {
             long diff = totalDuration / 8;
             int sec = 1;
+            File videoFile= new File(filePath.toString());
             for (ImageView img : imageViews) {
                 long interval = (diff * sec) * 1000000;
                 RequestOptions options = new RequestOptions().frame(interval);
                 Glide.with(this)
-                        .load(bundle.getString(TrimVideo.TRIM_VIDEO_URI))
+                        .load(videoFile)
                         .apply(options)
                         .transition(DrawableTransitionOptions.withCrossFade(300))
                         .into(img);
@@ -477,6 +478,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 f.delete();
             }
             stopRepeatingTask();
+            FFmpegKit.cancel();
         } catch (Exception e) {
             LogMessage.e(Log.getStackTraceString(e));
         }
@@ -603,12 +605,11 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
-            new Thread(() -> {
-                int result = FFmpeg.execute(command);
+            FFmpegKit.executeWithArgumentsAsync(command, session -> {
+                int result = session.getReturnCode().getValue();
                 if (result == 0) {
                     dialog.dismiss();
-                    if (showFileLocationAlert)
-                        showLocationAlert();
+                    if (showFileLocationAlert) showLocationAlert();
                     else {
                         Intent intent = new Intent();
                         intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
@@ -625,22 +626,18 @@ public class ActVideoTrimmer extends LocalizationActivity {
                     // that case retrying with accurateCmt as alternative command
                     if (retry && !isAccurateCut && compressOption == null) {
                         File newFile = new File(outputPath);
-                        if (newFile.exists())
-                            newFile.delete();
+                        if (newFile.exists()) newFile.delete();
                         execFFmpegBinary(getAccurateCmd(), false);
                     } else {
-                        if (dialog.isShowing())
-                            dialog.dismiss();
-                        runOnUiThread(() ->
-                                Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
+                        if (dialog.isShowing()) dialog.dismiss();
+                        runOnUiThread(() -> Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
                     }
                 }
-            }).start();
-
-
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     private void showLocationAlert() {
@@ -689,7 +686,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             txtCancel.setOnClickListener(v -> {
                 dialog.dismiss();
-                FFmpeg.cancel();
+                FFmpegKit.cancel();
             });
             dialog.show();
         } catch (Exception e) {
