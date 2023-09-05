@@ -60,6 +60,7 @@ import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
+import com.gowtham.library.utils.ViewUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -172,6 +173,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         ImageView imageSix = findViewById(R.id.image_six);
         ImageView imageSeven = findViewById(R.id.image_seven);
         ImageView imageEight = findViewById(R.id.image_eight);
+        ViewUtil.systemGestureExclusionRects(findViewById(R.id.root_view));
         imageViews = new ImageView[]{imageOne, imageTwo, imageThree,
                 imageFour, imageFive, imageSix, imageSeven, imageEight};
         seekHandler = new Handler();

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/StyleRoot"
     android:background="#303030"
+    android:id="@+id/root_view"
     tools:ignore="ContentDescription">
 
     <LinearLayout style="@style/FView">
