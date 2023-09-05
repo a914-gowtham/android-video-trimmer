@@ -166,58 +166,9 @@ TrimVideo.activity(videoUri)
 
 ## Compatibility
   
-  * Library - Android Kitkat 4.4+ (API 19)
+  * Library - Android Nougat 7.0+ (API 24)
   * Sample - Android Kitkat 4.4+ (API 19)
   
-## [ChangeLog](https://github.com/a914-gowtham/android-video-trimmer/releases)
-
-### Version 1.6.5
-  * Video stretch issue 2 [#46](https://github.com/a914-gowtham/Android-video-trimmer/issues/46)
-### Version 1.6.4
-  * Video stretch issue [#46](https://github.com/a914-gowtham/Android-video-trimmer/issues/46)
-### Version 1.6.3
-  * java.lang.NoClassDefFoundError Issue fix [#45](https://github.com/a914-gowtham/Android-video-trimmer/issues/45) that only happens on samsung devices
-### Version 1.6.2
-  * Arabic localization and custom toolbar title
-### Version 1.6.1
-  * Compression issue fixed
-### Version 1.6.0
-  * Ffmpeg-mobile version downgraded to 4.3.1-LTS to rectify release build issue
-### Version 1.5.11
-  * Write permission and setDestination removed due to the android 11 issues
-### Version 1.5.2
-  * Thumbnail loading optimized
-### Version 1.5.1
-  * Controller seekbar bug fixed
-### Version 1.5.0
-  * Audio focus added
-  * Bug fixes on Android 11
-  * ui improvements
-### Version 1.4.4
-  * Exoplayer version updated to 2.12.1
-### Version 1.4.2
-  * Toolbar title softcoded 
-  
-### Version 1.4.1
-  * Can be started from fragment
-  * Added Custom fileName for the output video
-  
-### Version 1.4.0
-  * FFmpegMedia lib changed into Mobile-ffmpeg 
-### Version 1.0.9
-  * Library size reduced 
-  * Library size : 12mb(release build)
-  * Constants class name changed into TrimmerConstants
-  * Added TrimmerUtils class which has getVideoDuration() method and some more VideoUtils methods
-
-### Version 1.0.5
-  * Fixed issue on Android Q.
-  * Library size : 26mb(debug build).
-  * Small UI updates.
-  * Couple new things to configure.
-
-### Version 1.0.0
-  * Initial Build
   
 ## Thanks to 
 [TanerSener](https://github.com/tanersener/mobile-ffmpeg)
