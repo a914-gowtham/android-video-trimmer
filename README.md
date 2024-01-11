@@ -96,7 +96,7 @@ TrimVideo.activity(String.valueOf(videoUri))
 ```
   * `FrameRate` Recommeded frameRate is 30
   * `BitRate`   Bitrate Can be between 150k to 1000k or 1M to 10M.Lower bitrate can reduce the quality and size of the video.
-               Use 1M for better quality output 
+               Use 1M for decent quality output 
   * `Width` Width of the video output video. 
   * `Height` Height of the video output video.Use `TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));` method to get the width and height of the video
    1. Video compressing process will take more time and duration will be accurate
