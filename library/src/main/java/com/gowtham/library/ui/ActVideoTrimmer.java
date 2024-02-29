@@ -699,7 +699,9 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private boolean checkStoragePermission() {
         Uri uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
         String fileUri= FileUtilKt.getActualFileUri(this, uri);
+
         if(fileUri!=null && new File(fileUri).canRead()){
+            // might have used photo picker or file picker. therefore have read access without permission.
             return true;
         }
 
