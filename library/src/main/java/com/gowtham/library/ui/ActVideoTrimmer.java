@@ -216,7 +216,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         try {
             Runnable fileUriRunnable = () -> {
                 Uri uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-                String path= FileUtilKt.getValidatedFileUri(ActVideoTrimmer.this,uri);
+                String path = FileUtilKt.getValidatedFileUri(ActVideoTrimmer.this, uri);
                 filePath = Uri.parse(path);
                 runOnUiThread(() -> {
                     LogMessage.v("VideoUri:: " + uri);
@@ -337,7 +337,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         try {
             long diff = totalDuration / 8;
             int sec = 1;
-            File videoFile= new File(filePath.toString());
+            File videoFile = new File(filePath.toString());
             for (ImageView img : imageViews) {
                 long interval = (diff * sec) * 1000000;
                 RequestOptions options = new RequestOptions().frame(interval);
@@ -475,8 +475,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 videoPlayer.release();
             if (progressView != null && progressView.isShowing())
                 progressView.dismiss();
-            File f=new File(getCacheDir(), "temp_video_file");
-            if(f.exists()){
+            File f = new File(getCacheDir(), "temp_video_file");
+            if (f.exists()) {
                 f.delete();
             }
             stopRepeatingTask();
@@ -697,12 +697,27 @@ public class ActVideoTrimmer extends LocalizationActivity {
     }
 
     private boolean checkStoragePermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-        {
+        Uri uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
+        String fileUri= FileUtilKt.getActualFileUri(this, uri);
+        if(fileUri!=null && new File(fileUri).canRead()){
+            return true;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            boolean hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                    == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO)
+                            == PackageManager.PERMISSION_GRANTED;
+            if (hasPermission) {
+                return true;
+            } else {
+                return checkPermission(
+                        Manifest.permission.READ_MEDIA_VIDEO);
+            }
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
             return checkPermission(
                     Manifest.permission.READ_MEDIA_VIDEO);
-        }
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return checkPermission(
                     Manifest.permission.READ_EXTERNAL_STORAGE);
         } else

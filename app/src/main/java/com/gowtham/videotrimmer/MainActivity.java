@@ -272,7 +272,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean checkCamStoragePer() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            boolean hasPermission= ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                    == PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO)
+                    == PackageManager.PERMISSION_GRANTED;
+            boolean hasCamera= ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED;
+            if(hasPermission && hasCamera){
+                return true;
+            }else {
+                return checkPermission(
+                        Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.CAMERA);
+            }
+
+        } else if(Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU)
         {
             return checkPermission(
                     Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.CAMERA);
