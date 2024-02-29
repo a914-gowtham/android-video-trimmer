@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 33
 
     packagingOptions {
         pickFirst 'lib/x86/libc++_shared.so'
@@ -13,7 +12,8 @@ android {
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 33
+        targetSdkVersion 34
+        compileSdk = 34
         consumerProguardFiles "consumer-rules.pro"
 
         ndkVersion '22.1.7171670'

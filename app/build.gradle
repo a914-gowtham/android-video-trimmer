@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.gowtham.videotrimmer"
         minSdkVersion 24
-        targetSdkVersion 33
+        targetSdkVersion 34
+        compileSdk = 34
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
