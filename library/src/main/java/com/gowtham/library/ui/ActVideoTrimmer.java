@@ -338,11 +338,15 @@ public class ActVideoTrimmer extends LocalizationActivity {
         try {
             // using double for short duration videos
             double diff = totalDuration / 8.0;
+            long maxFrame = totalDuration * 1000000;
+
             int sec = 1;
             File videoFile = new File(filePath.toString());
             for (ImageView img : imageViews) {
-                long interval = (int) ((diff * sec) * 1000000);
-                RequestOptions options = new RequestOptions().frame(interval);
+                long intervalStart = (long) ((diff * sec) * 1000000);
+                long frame = Math.min(intervalStart, maxFrame);
+
+                RequestOptions options = new RequestOptions().frame(frame);
                 Glide.with(this)
                         .load(videoFile)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -350,8 +354,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
                         .apply(options)
                         .transition(DrawableTransitionOptions.withCrossFade(300))
                         .into(img);
-                if (sec < totalDuration)
-                    sec++;
+
+                sec++;
             }
         } catch (Exception e) {
             e.printStackTrace();
