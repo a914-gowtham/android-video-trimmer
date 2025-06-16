@@ -3,11 +3,14 @@
 
 ### Deprecated:
 
-This library is deprecated, it depended on [ffmpeg-kit](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file). Since ffmpeg-kit has been removed, users will encounter a "failed to resolve" issue.
+This library is deprecated, it depended on [ffmpeg-kit](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file). Since ffmpeg-kit has been removed, due to ffmpeg license issue. 
+hereafter, users will encounter a "failed to resolve" issue. 
 
 ### Solution: 
 
-Use ffmpeg-kit and this library locally or Replace video processing part in this library locally with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html) 
+Use ffmpeg-kit and this library locally or Replace video processing part in this library locally with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html)      
+
+Sorry for the inconvenience.
 
 
 # Android-video-trimmer
