@@ -3,7 +3,7 @@
 
 ### Deprecated:
 
-This library is deprecated, it depended on [ffmpeg-kit](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file). Since ffmpeg-kit has been removed, due to ffmpeg license issue. 
+This library is deprecated, it was depended on [ffmpeg-kit](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file). Since ffmpeg-kit has been removed, due to ffmpeg license issue. 
 hereafter, users will encounter a "failed to resolve" issue. 
 
 ### Solution: 
