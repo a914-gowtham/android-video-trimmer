@@ -8,7 +8,9 @@ hereafter, users will encounter a "failed to resolve" issue.
 
 ### Solution: 
 
-Use ffmpeg-kit and this library locally or Replace video processing part in this library locally with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html)      
+Replace video processing part with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html)  / [LiTr library](https://github.com/linkedin/LiTr)
+or
+Use ffmpeg-kit and this library locally
 
 Sorry for the inconvenience.
 
