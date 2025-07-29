@@ -7,9 +7,9 @@ This library is deprecated, it was depended on [ffmpeg-kit](https://github.com/a
 hereafter, users will encounter a "failed to resolve" issue. 
 
 ### Alternates:
-1. FFmpeg used locally https://github.com/Hassaan-Javed/gowtham-video-trimmer-fork
+1. https://github.com/Hassaan-Javed/gowtham-video-trimmer-fork - FFmpeg used locally in this fork
 
-2. Fork this repo and replace video processing part with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html)  / [LiTr library](https://github.com/linkedin/LiTr)
+2. Fork the repo and replace video processing part with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html)  / [LiTr library](https://github.com/linkedin/LiTr)
 
 
 Sorry for the inconvenience.
