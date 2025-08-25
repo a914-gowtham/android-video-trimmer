@@ -95,5 +95,18 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             style="@style/ImageTrim" />
+
+
+        <ImageView
+            android:id="@+id/image_nine"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            style="@style/ImageTrim" />
+
+        <ImageView
+            android:id="@+id/image_ten"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            style="@style/ImageTrim" />
     </LinearLayout>
 </RelativeLayout>

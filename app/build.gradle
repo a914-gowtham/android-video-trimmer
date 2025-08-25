@@ -5,8 +5,8 @@ android {
     defaultConfig {
         applicationId "com.gowtham.videotrimmer"
         minSdkVersion 24
-        targetSdkVersion 34
-        compileSdk = 34
+        targetSdkVersion 36
+        compileSdk = 36
         versionCode 1
         versionName "1.0"
         multiDexEnabled true

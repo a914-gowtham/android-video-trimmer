@@ -2,54 +2,53 @@ package com.gowtham.library.utils;
 
 public class CompressOption {
 
-    private int frameRate=30;
-
-    private String bitRate="0k";
-
-    private int width=0;
-
-    private int height=0;
 
     public CompressOption() {
     }
 
-    public CompressOption(int frameRate, String bitRate, int width, int height) {
-        this.frameRate = frameRate;
+    private int bitRate= 0;
+
+    private float compressionScale=0;
+
+    public CompressOption(int bitRate, float compressionScaleForResolution) {
         this.bitRate = bitRate;
-        this.width = width;
-        this.height = height;
+        this.compressionScale = compressionScaleForResolution;
     }
 
-    public void setFrameRate(int frameRate) {
-        this.frameRate = frameRate;
+    private VideoRes videoRes= null;
+
+    public CompressOption(VideoRes videoRes) {
+        this.videoRes = videoRes;
     }
 
-    public void setBitRate(String bitRate) {
+
+    private boolean isUserSelection;
+
+    public CompressOption(boolean isUserSelection) {
+        this.isUserSelection = isUserSelection;
+    }
+
+    public void setBitRate(int bitRate) {
         this.bitRate = bitRate;
     }
 
-    public int getWidth() {
-        return width;
+    public float getCompressionScale() {
+        return compressionScale;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
+    public void setCompressionScale(float compressionScale) {
+        this.compressionScale = compressionScale;
     }
 
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public int getFrameRate() {
-        return frameRate;
-    }
-
-    public String getBitRate() {
+    public int getBitRate() {
         return bitRate;
     }
 
+    public VideoRes getVideoRes() {
+        return videoRes;
+    }
+
+    public void setVideoRes(VideoRes videoRes) {
+        this.videoRes = videoRes;
+    }
 }
