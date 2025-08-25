@@ -1,8 +1,19 @@
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 [![](https://jitpack.io/v/jZAIKO/android-video-trimmer.svg)](https://jitpack.io/#jZAIKO/android-video-trimmer)
 [![](https://jitpack.io/v/a914-gowtham/android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/android-video-trimmer)
 
-## 📚 This library is not actively maintained. feel free to fork it
+### Deprecated:
+
+This library is deprecated, it was depended on [ffmpeg-kit](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file). Since ffmpeg-kit has been removed, due to ffmpeg license issue. 
+hereafter, users will encounter a "failed to resolve" issue. 
+
+### Alternates:
+1. https://github.com/Hassaan-Javed/gowtham-video-trimmer-fork - instead of FFmpeg, [LiTr library](https://github.com/linkedin/LiTr) is used in this fork.
+
+2. Fork this repo and replace video processing part with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html) or local FFmpeg 
+
+
+Sorry for the inconvenience.
+
 
 # Android-video-trimmer
 
@@ -168,11 +179,27 @@ TrimVideo.activity(videoUri)
   
   * Library - Android Nougat 7.0+ (API 24)
   * Sample - Android Kitkat 4.4+ (API 19)
-  
-  
-## Thanks to 
-[TanerSener](https://github.com/tanersener/mobile-ffmpeg)
 
+## License
+
+This library is licensed under the MIT License.
+
+## FFmpeg Notice
+
+This library uses FFmpeg, which is licensed under the LGPL v3.0. 
+
+### Obtaining FFmpeg Source Code
+
+You can obtain the source code for FFmpeg from https://github.com/arthenica/ffmpeg-kit 
+
+### Relinking Instructions
+
+If you wish to replace or modify the FFmpeg library used in this project, follow these steps:
+
+1. Obtain the modified version of FFmpeg.
+2. Replace the existing FFmpeg library maven url in the `library/build.gradle` directory.
+3. Rebuild the project.
+  
 ## Support 
 Show your support by giving a star to this repository. 
   
