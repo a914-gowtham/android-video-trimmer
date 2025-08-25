@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,9 +30,24 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.util.Pair;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.effect.Presentation;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.DefaultEncoderFactory;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportException;
+import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.Transformer;
+import androidx.media3.transformer.VideoEncoderSettings;
 
 import com.akexorcist.localizationactivity.ui.LocalizationActivity;
-import com.arthenica.ffmpegkit.FFmpegKit;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
@@ -48,6 +62,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.gowtham.library.R;
 import com.gowtham.library.ui.seekbar.widgets.CrystalRangeSeekbar;
@@ -60,6 +75,7 @@ import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
+import com.gowtham.library.utils.VideoRes;
 import com.gowtham.library.utils.ViewUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +87,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 
 
-public class ActVideoTrimmer extends LocalizationActivity {
+@UnstableApi public class ActVideoTrimmer extends LocalizationActivity {
 
     private static final int PER_REQ_CODE = 115;
     private StyledPlayerView playerView;
@@ -85,7 +101,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     private Dialog dialog;
 
-    private Uri filePath;
+    private Uri fileUri;
 
     private TextView txtStartDuration, txtEndDuration;
 
@@ -135,9 +151,11 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private CustomProgressView progressView;
     private String fileName;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         setContentView(R.layout.act_video_trimmer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -145,9 +163,43 @@ public class ActVideoTrimmer extends LocalizationActivity {
         Gson gson = new Gson();
         String videoOption = bundle.getString(TrimVideo.TRIM_VIDEO_OPTION);
         trimVideoOptions = gson.fromJson(videoOption, TrimVideoOptions.class);
+        toolbar.getNavigationIcon().setTint(ContextCompat.getColor(this, R.color.colorWhite));
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
+        View viewThumbnails= findViewById(R.id.view_thumbnails);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
+        View rootView= findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar, new OnApplyWindowInsetsListener() {
+            @NonNull
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+                Insets topInsets= insets.getInsets(WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.statusBars());
+                Insets btmInsets= insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+                int left= topInsets.left!=0 ? topInsets.left : btmInsets.left;
+                int right= topInsets.right!=0 ? topInsets.right : btmInsets.right;
+                rootView.setPadding(left, 0, right, 0);
+                toolbar.setPadding(toolbar.getPaddingLeft(), topInsets.top, toolbar.getPaddingRight(),
+                        toolbar.getPaddingBottom());
+
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) viewThumbnails.getLayoutParams();
+                params.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(60);
+                viewThumbnails.setLayoutParams(params);
+
+                ViewGroup.MarginLayoutParams endDurationLayoutParams = (ViewGroup.MarginLayoutParams) txtEndDuration.getLayoutParams();
+                endDurationLayoutParams.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(40);
+                txtEndDuration.setLayoutParams(endDurationLayoutParams);
+
+                ViewGroup.MarginLayoutParams startDurationLayoutParams = (ViewGroup.MarginLayoutParams) txtStartDuration.getLayoutParams();
+                startDurationLayoutParams.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(40);
+                txtStartDuration.setLayoutParams(startDurationLayoutParams);
+                return insets;
+            }
+        });
     }
 
     @Override
@@ -173,9 +225,16 @@ public class ActVideoTrimmer extends LocalizationActivity {
         ImageView imageSix = findViewById(R.id.image_six);
         ImageView imageSeven = findViewById(R.id.image_seven);
         ImageView imageEight = findViewById(R.id.image_eight);
-        ViewUtil.systemGestureExclusionRects(findViewById(R.id.root_view));
+        ImageView imageNine = findViewById(R.id.image_nine);
+        ImageView imageTen = findViewById(R.id.image_ten);
+
+
+        View viewThumbnails = findViewById(R.id.view_thumbnails);
+
+
+        ViewUtil.systemGestureExclusionRects(findViewById(R.id.root_view), viewThumbnails);
         imageViews = new ImageView[]{imageOne, imageTwo, imageThree,
-                imageFour, imageFive, imageSix, imageSeven, imageEight};
+                imageFour, imageFive, imageSix, imageSeven, imageEight, imageNine, imageTen};
         seekHandler = new Handler();
         initPlayer();
         if (checkStoragePermission())
@@ -188,7 +247,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setTitle(title != null ? title : getString(R.string.txt_edt_video));
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("TAG", "initPlayer: ", e);
         }
     }
 
@@ -200,29 +259,24 @@ public class ActVideoTrimmer extends LocalizationActivity {
             videoPlayer = new ExoPlayer.Builder(this).build();
             playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
             playerView.setPlayer(videoPlayer);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                        .setUsage(C.USAGE_MEDIA)
-                        .setContentType(C.CONTENT_TYPE_MOVIE)
-                        .build();
-                videoPlayer.setAudioAttributes(audioAttributes, true);
-            }
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.CONTENT_TYPE_MOVIE)
+                    .build();
+            videoPlayer.setAudioAttributes(audioAttributes, true);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("TAG", "initPlayer: ", e);
         }
     }
 
     private void setDataInView() {
         try {
             Runnable fileUriRunnable = () -> {
-                Uri uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-                String path = FileUtilKt.getValidatedFileUri(ActVideoTrimmer.this, uri);
-                filePath = Uri.parse(path);
+                fileUri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
                 runOnUiThread(() -> {
-                    LogMessage.v("VideoUri:: " + uri);
-                    LogMessage.v("VideoPath:: " + filePath);
+                    LogMessage.v("VideoPath:: fileUri: " + fileUri);
                     progressBar.setVisibility(View.GONE);
-                    totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, filePath);
+                    totalDuration = TrimmerUtils.getDuration(ActVideoTrimmer.this, fileUri);
                     imagePlayPause.setOnClickListener(v ->
                             onVideoClicked());
                     Objects.requireNonNull(playerView.getVideoSurfaceView()).setOnClickListener(v ->
@@ -288,7 +342,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private void buildMediaSource() {
         try {
             DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(this);
-            MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(filePath));
+            MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(fileUri));
             videoPlayer.addMediaSource(mediaSource);
             videoPlayer.prepare();
             videoPlayer.setPlayWhenReady(true);
@@ -335,14 +389,13 @@ public class ActVideoTrimmer extends LocalizationActivity {
      * */
     private void loadThumbnails() {
         try {
-            long diff = totalDuration / 8;
+            long diff = totalDuration / imageViews.length;
             int sec = 1;
-            File videoFile = new File(filePath.toString());
             for (ImageView img : imageViews) {
                 long interval = (diff * sec) * 1000000;
                 RequestOptions options = new RequestOptions().frame(interval);
                 Glide.with(this)
-                        .load(videoFile)
+                        .load(fileUri)
                         .apply(options)
                         .transition(DrawableTransitionOptions.withCrossFade(300))
                         .into(img);
@@ -480,7 +533,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 f.delete();
             }
             stopRepeatingTask();
-            FFmpegKit.cancel();
+            transformer.cancel();
         } catch (Exception e) {
             LogMessage.e(Log.getStackTraceString(e));
         }
@@ -512,35 +565,87 @@ public class ActVideoTrimmer extends LocalizationActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void trimVideo() {
+    @UnstableApi private void trimVideo() {
         if (isValidVideo) {
             //not exceed given maxDuration if has given
             outputPath = getFileName();
             LogMessage.v("outputPath::" + outputPath + new File(outputPath).exists());
-            LogMessage.v("sourcePath::" + filePath);
+            LogMessage.v("sourcePath::" + fileUri);
             videoPlayer.setPlayWhenReady(false);
             showProcessingDialog();
             String[] complexCommand;
-            if (compressOption != null)
-                complexCommand = getCompressionCmd();
-            else if (isAccurateCut) {
-                //no changes in video quality
-                //faster trimming command and given duration will be accurate
-                complexCommand = getAccurateCmd();
-            } else {
-                //no changes in video quality
-                //fastest trimming command however, result duration
-                //will be low accurate(2-3 secs)
-                complexCommand = new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                        "-i", String.valueOf(filePath),
-                        "-t",
-                        TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                        "-async", "1", "-strict", "-2", "-c", "copy", outputPath};
+
+            if (compressOption != null){
+
             }
-            execFFmpegBinary(complexCommand, true);
+
+            androidx.media3.common.MediaItem mediaItem =
+                    new androidx.media3.common.MediaItem.Builder()
+                            .setUri(fileUri)
+                            .setClippingConfiguration(
+                                    new androidx.media3.common.MediaItem.ClippingConfiguration.Builder()
+                                            .setStartPositionMs(lastMinValue * 1000)
+                                            .setEndPositionMs(lastMaxValue * 1000)
+                                            .build())
+                            .build();
+
+            Pair<Integer, Integer> videoRes = TrimmerUtils.getVideoRes(this, fileUri);
+
+            Log.e("TAG", "trimVideo: width: "+videoRes.first);
+            Log.e("TAG", "trimVideo: height: "+videoRes.second);
+
+
+            String videoRes1= VideoRes.FULL_HD;
+            Log.e("TAG", "trimVideo: bitarge:: "+TrimmerUtils.getBitRate(this, fileUri));
+
+            EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem)
+                    .setEffects(new Effects(ImmutableList.of(),
+                            ImmutableList.of(Presentation.createForWidthAndHeight(videoRes.first, videoRes.second,
+                                    Presentation.LAYOUT_SCALE_TO_FIT))))
+                    .build();
+
+            transformer =
+                    new Transformer.Builder(this)
+                            .addListener(transformerListener)
+                            .setEncoderFactory(
+                                    new DefaultEncoderFactory.Builder(this)
+                                            .setRequestedVideoEncoderSettings(
+                                                    new VideoEncoderSettings.Builder()
+                                                            .setBitrate(2000)
+                                                            .build()
+                                            ).build())
+                            .build();
+            transformer.start(editedMediaItem, outputPath);
         } else
             Toast.makeText(this, getString(R.string.txt_smaller) + " " + TrimmerUtils.getLimitedTimeFormatted(maxToGap), Toast.LENGTH_SHORT).show();
     }
+
+    Transformer transformer;
+
+    Transformer.Listener transformerListener =
+            new Transformer.Listener() {
+                @Override
+                public void onCompleted(Composition composition, ExportResult result) {
+                    dialog.dismiss();
+                    if (showFileLocationAlert) showLocationAlert();
+                    else {
+                        Intent intent = new Intent();
+                        intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onError(Composition composition, ExportResult result,
+                                    ExportException exception) {
+                    if (dialog.isShowing()) dialog.dismiss();
+                    Log.e("ActVideoTrimmer:: ", "Composition onError: "+composition);
+                    Log.e("ActVideoTrimmer:: ", "ExportResult onError: "+result);
+                    Log.e("ActVideoTrimmer:: ", "ExportException onError: ",exception);
+                    runOnUiThread(() -> Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
+                }
+            };
 
     private String getFileName() {
         String path = getExternalFilesDir("TrimmedVideo").getPath();
@@ -554,92 +659,15 @@ public class ActVideoTrimmer extends LocalizationActivity {
         String fName = "trimmed_video_";
         if (fileName != null && !fileName.isEmpty())
             fName = fileName;
+        String extension = null;
+        String mimeType = getContentResolver().getType(fileUri);
+
+        if (mimeType != null) {
+            extension = android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        }
         File newFile = new File(path + File.separator +
-                (fName) + fileDateTime + "." + TrimmerUtils.getFileExtension(this, filePath));
+                (fName) + fileDateTime + "." + extension);
         return String.valueOf(newFile);
-    }
-
-    private String[] getCompressionCmd() {
-        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-        metaRetriever.setDataSource(String.valueOf(filePath));
-        String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-        int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
-        int h = Integer.parseInt(height);
-        int rotation = TrimmerUtils.getVideoRotation(this, filePath);
-        if (rotation == 90 || rotation == 270) {
-            int temp = w;
-            w = h;
-            h = temp;
-        }
-        //Default compression option
-        if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
-                || !compressOption.getBitRate().equals("0k")) {
-            return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(filePath), "-s", compressOption.getWidth() + "x" +
-                    compressOption.getHeight(),
-                    "-r", String.valueOf(compressOption.getFrameRate()),
-                    "-vcodec", "mpeg4", "-b:v",
-                    compressOption.getBitRate(), "-b:a", "48000", "-ac", "2", "-ar",
-                    "22050", "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
-        }
-        //Dividing high resolution video by 2(ex: taken with camera)
-        else if (w >= 800) {
-            w = w / 2;
-            h = h / 2;
-            return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(filePath),
-                    "-s", w + "x" + h, "-r", "30",
-                    "-vcodec", "mpeg4", "-b:v",
-                    "1M", "-b:a", "48000", "-ac", "2", "-ar", "22050",
-                    "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
-        } else {
-            return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(filePath), "-s", w + "x" + h, "-r",
-                    "30", "-vcodec", "mpeg4", "-b:v",
-                    "400K", "-b:a", "48000", "-ac", "2", "-ar", "22050",
-                    "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
-        }
-    }
-
-    private void execFFmpegBinary(final String[] command, boolean retry) {
-        try {
-            FFmpegKit.executeWithArgumentsAsync(command, session -> {
-                int result = session.getReturnCode().getValue();
-                if (result == 0) {
-                    dialog.dismiss();
-                    if (showFileLocationAlert) showLocationAlert();
-                    else {
-                        Intent intent = new Intent();
-                        intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }
-                } else if (result == 255) {
-                    LogMessage.v("Command cancelled");
-                    if (dialog.isShowing())
-                        dialog.dismiss();
-                } else {
-                    // Failed case:
-                    // line 489 command fails on some devices in
-                    // that case retrying with accurateCmt as alternative command
-                    if (retry && !isAccurateCut && compressOption == null) {
-                        File newFile = new File(outputPath);
-                        if (newFile.exists()) newFile.delete();
-                        execFFmpegBinary(getAccurateCmd(), false);
-                    } else {
-                        if (dialog.isShowing()) dialog.dismiss();
-                        runOnUiThread(() -> Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
-                    }
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void showLocationAlert() {
@@ -671,13 +699,6 @@ public class ActVideoTrimmer extends LocalizationActivity {
         openFileLocationDialog.show();
     }
 
-    private String[] getAccurateCmd() {
-        return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue)
-                , "-i", String.valueOf(filePath), "-t",
-                TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                "-async", "1", outputPath};
-    }
-
     private void showProcessingDialog() {
         try {
             dialog = new Dialog(this);
@@ -688,7 +709,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             txtCancel.setOnClickListener(v -> {
                 dialog.dismiss();
-                FFmpegKit.cancel();
+                transformer.cancel();
             });
             dialog.show();
         } catch (Exception e) {

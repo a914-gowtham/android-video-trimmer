@@ -6,11 +6,11 @@
 This library is deprecated, it was depended on [ffmpeg-kit](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file). Since ffmpeg-kit has been removed, due to ffmpeg license issue. 
 hereafter, users will encounter a "failed to resolve" issue. 
 
-### Solution: 
+### Alternates:
+1. https://github.com/Hassaan-Javed/gowtham-video-trimmer-fork - instead of FFmpeg, [LiTr library](https://github.com/linkedin/LiTr) is used in this fork.
 
-Replace video processing part with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html)  / [LiTr library](https://github.com/linkedin/LiTr)
-or
-Use ffmpeg-kit and this library locally
+2. Fork this repo and replace video processing part with [Media3 library](https://android-developers.googleblog.com/2025/03/media-processing-performance-jetpack-media3-transformer.html) or local FFmpeg 
+
 
 Sorry for the inconvenience.
 

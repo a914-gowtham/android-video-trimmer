@@ -8,7 +8,6 @@
 
     <application>
         <activity android:name=".ui.ActVideoTrimmer"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask"
             android:theme="@style/VideoTrimmerTheme"
             android:exported="true"/>

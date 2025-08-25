@@ -15,6 +15,7 @@ import android.webkit.MimeTypeMap;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 
 import com.google.gson.Gson;
 
@@ -26,27 +27,7 @@ import java.util.regex.Pattern;
 
 public class TrimmerUtils {
 
-    public static String formatCSeconds(long timeInSeconds) {
-        long hours = timeInSeconds / 3600;
-        long secondsLeft = timeInSeconds - hours * 3600;
-        long minutes = secondsLeft / 60;
-        long seconds = secondsLeft - minutes * 60;
 
-        String formattedTime = "";
-        if (hours < 10)
-            formattedTime += "0";
-        formattedTime += hours + ":";
-
-        if (minutes < 10)
-            formattedTime += "0";
-        formattedTime += minutes + ":";
-
-        if (seconds < 10)
-            formattedTime += "0";
-        formattedTime += seconds;
-
-        return formattedTime;
-    }
 
     public static int getColor(Context context, int color) {
         return ContextCompat.getColor(context, color);
@@ -150,24 +131,31 @@ public class TrimmerUtils {
     }
 
 
-    public static int[] getVideoWidthHeight(Activity context, Uri videoPath) {
+    public static Pair<Integer, Integer> getVideoRes(Activity context, Uri videoUri) {
         try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(context,videoPath);
-            int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-            int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-            retriever.release();
-            return new int[]{width,height};
+            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+            metaRetriever.setDataSource(context, videoUri);
+            String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
+            int h = Integer.parseInt(height);
+            int rotation = TrimmerUtils.getVideoRotation(context, videoUri);
+            if (rotation == 90 || rotation == 270) {
+//                int temp = w;
+//                w = h;
+//                h = temp;
+            }
+            return new Pair<>(w, h);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static int getVideoRotation(Activity context, Uri videoPath) {
+    public static int getVideoRotation(Activity context, Uri videoUri) {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(context,videoPath);
+            retriever.setDataSource(context,videoUri);
             int rotation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
             retriever.release();
             return rotation;
