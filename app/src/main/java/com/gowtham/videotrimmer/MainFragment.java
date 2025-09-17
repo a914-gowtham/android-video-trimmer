@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.TrimVideo;
 
 public class MainFragment extends Fragment {
@@ -43,7 +42,6 @@ public class MainFragment extends Fragment {
 
     private void callFragment(){
         TrimVideo.activity("data")
-                .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
                 .start(this,launchSomeActivity);
     }
 }

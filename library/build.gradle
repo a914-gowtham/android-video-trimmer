@@ -4,16 +4,15 @@ apply plugin: 'kotlin-android'
 android {
 
     packagingOptions {
-        pickFirst 'lib/x86/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
-        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        jniLibs {
+            pickFirsts += ['lib/x86/libc++_shared.so', 'lib/x86_64/libc++_shared.so', 'lib/armeabi-v7a/libc++_shared.so', 'lib/arm64-v8a/libc++_shared.so']
+        }
     }
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 34
-        compileSdk = 34
+        targetSdkVersion 35
+        compileSdk = 35
         consumerProguardFiles "consumer-rules.pro"
 
         ndkVersion '22.1.7171670'
@@ -37,22 +36,26 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     namespace 'com.gowtham.library'
 
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-    implementation 'com.arthenica:ffmpeg-kit-min:6.0-1'
+    implementation 'com.linkedin.android.litr:litr:1.5.7'
+    implementation 'androidx.activity:activity:1.10.1'
+
+    implementation "androidx.core:core:1.16.0"
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
     implementation 'com.akexorcist:localization:1.2.9'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
-}
-repositories {
-    mavenCentral()
 }

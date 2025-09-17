@@ -53,11 +53,6 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setCompressOption(final CompressOption compressOption) {
-            options.compressOption = compressOption;
-            return this;
-        }
-
         public ActivityBuilder setFileName(@NonNull final String fileName) {
             options.fileName = fileName;
             return this;

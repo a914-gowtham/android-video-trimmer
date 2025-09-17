@@ -1,10 +1,14 @@
-[![](https://jitpack.io/v/jZAIKO/android-video-trimmer.svg)](https://jitpack.io/#jZAIKO/android-video-trimmer)
-[![](https://jitpack.io/v/a914-gowtham/android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/android-video-trimmer)
+[![](https://jitpack.io/v/Hassaan-Javed/gowtham-video-trimmer-fork.svg)](https://jitpack.io/#Hassaan-Javed/gowtham-video-trimmer-fork)
 
+# Android Video Trimmer (Fork)
+
+_Forked from [a914‑gowtham/android‑video‑trimmer](https://github.com/a914‑gowtham/android‑video‑trimmer) (Apache 2.0)._
+
+*This version removes FFmpeg‑Kit and uses LiTr instead*
 
 # Android-video-trimmer
 
-##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://github.com/a914-gowtham/android-video-trimmer/releases/tag/1.7.14) 
+##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and LiTr
 
 ![](https://github.com/a914-gowtham/Android-video-trimmer/blob/master/demo.gif)
 
@@ -18,7 +22,7 @@
  ```gradle
  // replace x.y.z with latest available jitpack version
  dependencies {
-    implementation 'com.github.a914-gowtham:android-video-trimmer:x.y.z'
+    implementation 'com.github.Hassaan-Javed:gowtham-video-trimmer-fork:{LatestVersion}'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -85,36 +89,7 @@ TrimVideo.activity(String.valueOf(videoUri))
           .setHideSeekBar(true)
           .start(this,startForResult);
 ```
-   1. Faster processing, No losses in quality(no compression), accurate trimming. 
-
-
-#### Video Compress Mode:
-```java
-.setCompressOption(new CompressOption(frameRate,bitRate,width,height))  //pass empty constructor for default compressoption
-```
-  * `FrameRate` Recommeded frameRate is 30
-  * `BitRate`   Bitrate Can be between 150k to 1000k or 1M to 10M.Lower bitrate can reduce the quality and size of the video.
-               Use 1M for decent quality output 
-  * `Width` Width of the video output video. 
-  * `Height` Height of the video output video.Use `TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));` method to get the width and height of the video
-   1. Video compressing process will take more time and duration will be accurate
-```java
-TrimVideo.activity(String.valueOf(videoUri))
-          .setCompressOption(new CompressOption(30,"1M",460,320)) //pass empty constructor for default compress values
-          .setHideSeekBar(true)
-          .start(this,startForResult);
-//You could divide the width and height by 2. when try to compress a large resolution videos ex:Taken from camera
-/*int[] wAndh=TrimmerUtils.getVideoWidthHeight(this,Uri.parse(videoUri));
-    int width=wAndh[0];
-    int height=wAndh[1];
-    if(wAndh[0]>800){
-      width/=2;
-      width/=2;
-     .setCompressOption(new CompressOption(30,"1M",width,height))   
-     }else
-     .setCompressOption(new CompressOption(30,"400k",width,height))   
-   */
-```
+   1. Faster processing, No losses in quality(no compression), accurate trimming.
 
 ## Customization
 
@@ -164,29 +139,21 @@ TrimVideo.activity(videoUri)
 
 ## Compatibility
   
-  * Library - Android Nougat 7.0+ (API 24)
-  * Sample - Android Kitkat 4.4+ (API 19)
+  * Library - API 24+
+  * Sample - API 24+
 
 ## License
 
 This library is licensed under the MIT License.
 
-## FFmpeg Notice
+## LiTr Notice
 
-This library uses FFmpeg, which is licensed under the LGPL v3.0. 
+This project includes **LiTr** (Lightweight Video/Audio Transformer by LinkedIn), licensed under the [BSD‑2‑Clause License](https://opensource.org/licenses/BSD-2-Clause).
 
 ### Obtaining FFmpeg Source Code
 
-You can obtain the source code for FFmpeg from https://github.com/arthenica/ffmpeg-kit 
+You can obtain the source code for LiTr from https://github.com/linkedin/LiTr
 
-### Relinking Instructions
-
-If you wish to replace or modify the FFmpeg library used in this project, follow these steps:
-
-1. Obtain the modified version of FFmpeg.
-2. Replace the existing FFmpeg library maven url in the `library/build.gradle` directory.
-3. Rebuild the project.
-  
 ## Support 
 Show your support by giving a star to this repository. 
   

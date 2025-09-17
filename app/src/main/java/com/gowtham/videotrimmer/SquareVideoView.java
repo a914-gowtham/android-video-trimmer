@@ -4,8 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.VideoView;
 
-import androidx.appcompat.widget.AppCompatImageView;
-
 public class SquareVideoView extends VideoView {
 
     public SquareVideoView(Context context) {

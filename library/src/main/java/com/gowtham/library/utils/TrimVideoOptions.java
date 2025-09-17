@@ -20,8 +20,6 @@ public class TrimVideoOptions {
 
     public String local;
 
-    public CompressOption compressOption;
-
     public TrimVideoOptions() {
     }
 
