@@ -15,7 +15,7 @@ import com.gowtham.library.ui.ActVideoTrimmer;
 public class TrimVideo {
 
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
-            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path", IS_COMPRESSION_ENABLED= "is_compression_enabled";
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path", ENABLE_COMPRESSION= "is_compression_enabled";
 
 
     public static ActivityBuilder activity(String uri) {
@@ -69,8 +69,8 @@ public class TrimVideo {
             return this;
         }
 
-        public ActivityBuilder setAccurateCut(final boolean accurate) {
-            options.accurateCut = accurate;
+        public ActivityBuilder disableCompression() {
+            options.isCompressionEnabled = false;
             return this;
         }
 
@@ -135,6 +135,7 @@ public class TrimVideo {
             Bundle bundle=new Bundle();
             bundle.putString(TRIM_VIDEO_URI, videoUri);
             bundle.putString(TRIM_VIDEO_OPTION, gson.toJson(options));
+            bundle.putBoolean(ENABLE_COMPRESSION, options.isCompressionEnabled);
             intent.putExtras(bundle);
             return intent;
         }

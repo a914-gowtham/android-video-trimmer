@@ -10,7 +10,7 @@ public class TrimVideoOptions {
 
     public boolean hideSeekBar;
 
-    public boolean accurateCut;
+    public boolean isCompressionEnabled= true;
 
     public boolean showFileLocationAlert;
 

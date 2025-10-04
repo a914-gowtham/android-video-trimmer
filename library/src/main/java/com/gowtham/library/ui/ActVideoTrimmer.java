@@ -247,8 +247,12 @@ import java.util.concurrent.Executors;
         initPlayer();
 
         fileUri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-        isCompressionEnabled= bundle.getBoolean(TrimVideo.IS_COMPRESSION_ENABLED, true);
-        Pair<Integer, Integer> videoRes= TrimmerUtils.getVideoRes(this, fileUri);
+        isCompressionEnabled= bundle.getBoolean(TrimVideo.ENABLE_COMPRESSION, true);
+
+        if(!isCompressionEnabled){
+            resChangeSpinner.setVisibility(View.GONE);
+        }
+
         String selectVideoRes = savedInstanceState!=null ? savedInstanceState.getString("selectedRes") : "";
         if (checkStoragePermission())
             setDataInView(selectVideoRes);
@@ -366,7 +370,6 @@ import java.util.concurrent.Executors;
             trimType = TrimmerUtils.getTrimType(trimVideoOptions.trimType);
             fileName = trimVideoOptions.fileName;
             hidePlayerSeek = trimVideoOptions.hideSeekBar;
-            isAccurateCut = trimVideoOptions.accurateCut;
             local = trimVideoOptions.local;
             compressOption = trimVideoOptions.compressOption;
             showFileLocationAlert = trimVideoOptions.showFileLocationAlert;
