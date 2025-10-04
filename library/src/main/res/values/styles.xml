@@ -18,6 +18,16 @@
         <item name="android:clickable">true</item>
     </style>
 
+    <style name="AppTheme.PopupMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <!-- For AndroidX AppCompat Popups -->
+        <item name="android:textColor">@color/colorWhite</item>
+        <!-- You might also need to set the background if it's not picking up correctly -->
+        <!-- <item name="android:background">@color/popup_menu_background_dark</item> -->
+    </style>
+
+    <style name="AppTheme.PopupMenu.Old" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="android:textColor">@color/popup_menu_text_color_dark</item>
+    </style>
 
     <style name="FView">
         <item name="android:layout_width">match_parent</item>

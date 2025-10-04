@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,11 +118,11 @@ public class TrimmerUtils {
         return 30;
     }
 
-    public static int getBitRate(Activity context, Uri videoPath) {
+    public static long getBitRate(Activity context, Uri videoPath) {
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(context, videoPath);
-            int bitRate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
+            long bitRate = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
             retriever.release();
             return bitRate;
         } catch (Exception e) {
@@ -139,12 +140,6 @@ public class TrimmerUtils {
             String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
             int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
             int h = Integer.parseInt(height);
-            int rotation = TrimmerUtils.getVideoRotation(context, videoUri);
-            if (rotation == 90 || rotation == 270) {
-//                int temp = w;
-//                w = h;
-//                h = temp;
-            }
             return new Pair<>(w, h);
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,5 +209,42 @@ public class TrimmerUtils {
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(value);
         return m.find();
+    }
+
+    public static HashMap<VideoRes, Long> getResBitRate(Activity context,
+                                                                  Uri fileUri){
+        HashMap<VideoRes, Long> resolutionBitRateMap=new HashMap<>();
+        long videoBitRate= getBitRate(context, fileUri);
+        resolutionBitRateMap.put(VideoRes.LOWER_SD, videoBitRate!=0L
+               ? videoBitRate : mbToBits(0.09));
+        resolutionBitRateMap.put(VideoRes.SD_360, videoBitRate!=0L
+                ? Math.min(videoBitRate, mbToBits(0.13)) : mbToBits(0.13));
+        resolutionBitRateMap.put(VideoRes.SD, videoBitRate!=0L
+                ? Math.min(videoBitRate, mbToBits(0.18)) : mbToBits(0.18));
+        resolutionBitRateMap.put(VideoRes.HD, videoBitRate!=0L
+                ? Math.min(videoBitRate, mbToBits(0.35)) : mbToBits(0.35));
+        resolutionBitRateMap.put(VideoRes.FULL_HD, videoBitRate!=0L
+                ? Math.min(videoBitRate, mbToBits(0.84)) : mbToBits(0.84));
+        return resolutionBitRateMap;
+    }
+
+    private static long mbToBits(double mb) {
+        return (long) (mb * 8.0 * 1024 * 1024);
+    }
+
+    public static VideoRes classifyResolution(int width, int height) {
+        int resolution = Math.max(width, height); // handle portrait/landscape
+
+        if (resolution >= 1920) {
+            return VideoRes.FULL_HD;
+        } else if (resolution >= 1280) {
+            return VideoRes.HD;
+        } else if (resolution >= 854) {
+            return VideoRes.SD;
+        } else if (resolution >= 640) {  // 640x360
+            return VideoRes.SD_360;
+        } else {
+            return VideoRes.LOWER_SD;
+        }
     }
 }

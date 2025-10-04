@@ -15,7 +15,8 @@ import com.gowtham.library.ui.ActVideoTrimmer;
 public class TrimVideo {
 
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
-            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path";
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path", IS_COMPRESSION_ENABLED= "is_compression_enabled";
+
 
     public static ActivityBuilder activity(String uri) {
         return new ActivityBuilder(uri);

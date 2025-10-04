@@ -1,5 +1,8 @@
 package com.gowtham.library.ui;
 
+import static com.gowtham.library.utils.VideoResKt.fromDisplayName;
+import static com.gowtham.library.utils.VideoResKt.getVideoResNames;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -82,6 +87,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -126,6 +133,8 @@ import java.util.concurrent.Executors;
     private TrimVideoOptions trimVideoOptions;
 
     private long currentDuration, lastClickedTime;
+
+    private VideoRes selectedRes;
     Runnable updateSeekbar = new Runnable() {
         @Override
         public void run() {
@@ -151,6 +160,8 @@ import java.util.concurrent.Executors;
     private CustomProgressView progressView;
     private String fileName;
 
+    private TextView resChangeSpinner, txtFileSize;
+    private boolean isCompressionEnabled;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -168,6 +179,7 @@ import java.util.concurrent.Executors;
         toolbar.setNavigationOnClickListener(v -> finish());
         progressView = new CustomProgressView(this);
         View viewThumbnails= findViewById(R.id.view_thumbnails);
+        View viewTimer= findViewById(R.id.view_timer);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getWindow().setNavigationBarContrastEnforced(false);
@@ -187,16 +199,12 @@ import java.util.concurrent.Executors;
                         toolbar.getPaddingBottom());
 
                 ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) viewThumbnails.getLayoutParams();
-                params.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(60);
+                params.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(80);
                 viewThumbnails.setLayoutParams(params);
 
-                ViewGroup.MarginLayoutParams endDurationLayoutParams = (ViewGroup.MarginLayoutParams) txtEndDuration.getLayoutParams();
-                endDurationLayoutParams.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(40);
-                txtEndDuration.setLayoutParams(endDurationLayoutParams);
-
-                ViewGroup.MarginLayoutParams startDurationLayoutParams = (ViewGroup.MarginLayoutParams) txtStartDuration.getLayoutParams();
-                startDurationLayoutParams.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(40);
-                txtStartDuration.setLayoutParams(startDurationLayoutParams);
+                ViewGroup.MarginLayoutParams endDurationLayoutParams = (ViewGroup.MarginLayoutParams) viewTimer.getLayoutParams();
+                endDurationLayoutParams.bottomMargin =btmInsets.bottom + ViewUtil.dpToPx(58);
+                viewTimer.setLayoutParams(endDurationLayoutParams);
                 return insets;
             }
         });
@@ -227,18 +235,33 @@ import java.util.concurrent.Executors;
         ImageView imageEight = findViewById(R.id.image_eight);
         ImageView imageNine = findViewById(R.id.image_nine);
         ImageView imageTen = findViewById(R.id.image_ten);
-
+        resChangeSpinner= findViewById(R.id.txt_change_res);
+        txtFileSize= findViewById(R.id.txt_file_size);
 
         View viewThumbnails = findViewById(R.id.view_thumbnails);
-
 
         ViewUtil.systemGestureExclusionRects(findViewById(R.id.root_view), viewThumbnails);
         imageViews = new ImageView[]{imageOne, imageTwo, imageThree,
                 imageFour, imageFive, imageSix, imageSeven, imageEight, imageNine, imageTen};
         seekHandler = new Handler();
         initPlayer();
+
+        fileUri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
+        isCompressionEnabled= bundle.getBoolean(TrimVideo.IS_COMPRESSION_ENABLED, true);
+        Pair<Integer, Integer> videoRes= TrimmerUtils.getVideoRes(this, fileUri);
+        String selectVideoRes = savedInstanceState!=null ? savedInstanceState.getString("selectedRes") : "";
         if (checkStoragePermission())
-            setDataInView();
+            setDataInView(selectVideoRes);
+    }
+
+    private double bitsToMbs(long bits) {
+        return bits / 8.0 / 1024.0 / 1024;
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("selectedRes", selectedRes.getDisplayName());
     }
 
     private void setUpToolBar(ActionBar actionBar, String title) {
@@ -269,10 +292,11 @@ import java.util.concurrent.Executors;
         }
     }
 
-    private void setDataInView() {
+    private void setDataInView(String selectVideoRes) {
         try {
+            setSelectedVideoRes(selectVideoRes);
+
             Runnable fileUriRunnable = () -> {
-                fileUri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
                 runOnUiThread(() -> {
                     LogMessage.v("VideoPath:: fileUri: " + fileUri);
                     progressBar.setVisibility(View.GONE);
@@ -285,12 +309,55 @@ import java.util.concurrent.Executors;
                     buildMediaSource();
                     loadThumbnails();
                     setUpSeekBar();
+                    setUpResChanger();
                 });
             };
             Executors.newSingleThreadExecutor().execute(fileUriRunnable);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("VideoTrimmer", "", e);
         }
+    }
+
+    private void setSelectedVideoRes(String selectVideoRes) {
+        try {
+            Pair<Integer, Integer> wh= TrimmerUtils.getVideoRes(this, fileUri);
+            selectedRes= selectVideoRes!=null && !selectVideoRes.isEmpty() ?
+                    fromDisplayName(selectVideoRes) : TrimmerUtils.classifyResolution(wh.first, wh.second);
+            resChangeSpinner.setText(selectedRes.getDisplayName());
+        } catch (Exception e) {
+            Log.e("VideoTrimmer", "", e);
+        }
+    }
+
+    private void setUpResChanger() {
+        resChangeSpinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showResolutionMenu(resChangeSpinner);
+            }
+        });
+    }
+
+    private void showResolutionMenu(TextView anchorView) {
+
+        Context wrapperContext = new ContextThemeWrapper(ActVideoTrimmer.this, R.style.AppTheme_PopupMenu);
+        PopupMenu popupMenu = new PopupMenu(wrapperContext, anchorView);
+        Log.e("TAG", "showResolutionMenu: "+popupMenu.getGravity());
+
+
+        List<String> resolutions= getVideoResNames(this, fileUri);
+        for (String resolution : resolutions) {
+            popupMenu.getMenu().add(resolution);
+        }
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            Log.e("TAG", "showResolutionMenu: "+menuItem.getTitle().toString());
+            selectedRes = fromDisplayName(menuItem.getTitle().toString());
+
+            anchorView.setText(selectedRes.getDisplayName());
+            return true;
+        });
+        popupMenu.show();
     }
 
     private void initTrimData() {
@@ -506,7 +573,7 @@ import java.util.concurrent.Executors;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PER_REQ_CODE) {
             if (isPermissionOk(grantResults))
-                setDataInView();
+                setDataInView("");
             else {
                 Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
                 finish();
@@ -573,11 +640,6 @@ import java.util.concurrent.Executors;
             LogMessage.v("sourcePath::" + fileUri);
             videoPlayer.setPlayWhenReady(false);
             showProcessingDialog();
-            String[] complexCommand;
-
-            if (compressOption != null){
-
-            }
 
             androidx.media3.common.MediaItem mediaItem =
                     new androidx.media3.common.MediaItem.Builder()
@@ -591,19 +653,22 @@ import java.util.concurrent.Executors;
 
             Pair<Integer, Integer> videoRes = TrimmerUtils.getVideoRes(this, fileUri);
 
-            Log.e("TAG", "trimVideo: width: "+videoRes.first);
-            Log.e("TAG", "trimVideo: height: "+videoRes.second);
-
-
-            String videoRes1= VideoRes.FULL_HD;
-            Log.e("TAG", "trimVideo: bitarge:: "+TrimmerUtils.getBitRate(this, fileUri));
-
+            int width= videoRes.first;
+            int height= videoRes.second;
             EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem)
                     .setEffects(new Effects(ImmutableList.of(),
-                            ImmutableList.of(Presentation.createForWidthAndHeight(videoRes.first, videoRes.second,
+                            ImmutableList.of(Presentation.createForWidthAndHeight(width, height,
                                     Presentation.LAYOUT_SCALE_TO_FIT))))
                     .build();
 
+
+            long bitRate= TrimmerUtils.getBitRate(this, fileUri);
+
+            if(isCompressionEnabled){
+                HashMap<VideoRes, Long> videoResMap= TrimmerUtils.getResBitRate(this, fileUri);
+                Long compressionBitRate= videoResMap.get(selectedRes);
+                bitRate= compressionBitRate!=null ? compressionBitRate : bitRate;
+            }
             transformer =
                     new Transformer.Builder(this)
                             .addListener(transformerListener)
@@ -611,7 +676,7 @@ import java.util.concurrent.Executors;
                                     new DefaultEncoderFactory.Builder(this)
                                             .setRequestedVideoEncoderSettings(
                                                     new VideoEncoderSettings.Builder()
-                                                            .setBitrate(2000)
+                                                            .setBitrate(Math.toIntExact(bitRate))
                                                             .build()
                                             ).build())
                             .build();
@@ -718,10 +783,10 @@ import java.util.concurrent.Executors;
     }
 
     private boolean checkStoragePermission() {
-        Uri uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
-        String fileUri= FileUtilKt.getActualFileUri(this, uri);
+        String uri= FileUtilKt.getActualFileUri(this, fileUri);
 
-        if(fileUri!=null && new File(fileUri).canRead()){
+        if(uri!=null && new File(uri).canRead()){
+            Log.e("VideoTrimmer", "checkStoragePermission: has no permission");
             // might have used photo picker or file picker. therefore have read access without permission.
             return true;
         }

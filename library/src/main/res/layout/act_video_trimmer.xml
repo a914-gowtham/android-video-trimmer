@@ -11,20 +11,50 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#00000000"
+        android:background="#4D000000"
         android:elevation="5dp"
         app:navigationIcon="@drawable/trimmer_arrow_back_white"
-        app:titleTextColor="@color/colorWhite" />
+        app:titleTextColor="@color/colorWhite" >
 
-    <LinearLayout style="@style/FView">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end">
+
+            <TextView
+                android:id="@+id/txt_file_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100kb"
+                android:visibility="gone"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/colorWhite"
+                />
+
+            <TextView
+                android:id="@+id/txt_change_res"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1080p"
+                android:textSize="16sp"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:textColor="@color/colorWhite"
+                app:drawableEndCompat="@drawable/ic_trimmer_arrow_down" />
+        </LinearLayout>
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:elevation="1dp"
+        style="@style/FView">
 
         <RelativeLayout style="@style/VWView">
-
-            <com.google.android.exoplayer2.ui.StyledPlayerView
-                android:id="@+id/player_view_lib"
-                style="@style/FView"
-                android:layout_gravity="center_vertical"
-                app:use_controller="false" />
 
             <ImageView
                 android:id="@+id/image_play_pause"
@@ -37,8 +67,8 @@
 
             <ProgressBar
                 android:id="@+id/progress_circular"
-                android:layout_centerInParent="true"
-                style="@style/WView" />
+                style="@style/WView"
+                android:layout_centerInParent="true" />
         </RelativeLayout>
 
     </LinearLayout>
@@ -46,29 +76,52 @@
     <include layout="@layout/view_video_controller"
         android:id="@+id/view_thumbnails"/>
 
-    <TextView
-        android:id="@+id/txt_start_duration"
-        style="@style/TxtRgStyle22"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="40dp"
-        android:textColor="#80FFFFFF"
-        android:textSize="14sp"
-        android:text="00:00s"
-        tools:visibility="visible"
-        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/view_timer"
+        android:layout_width="match_parent"
+        android:background="#4D000000"
+        android:elevation="1dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="3dp"
+        android:layout_marginBottom="55dp"
+        android:layout_gravity="bottom">
+
+        <TextView
+            android:id="@+id/txt_start_duration"
+            style="@style/TxtRgStyle22"
+            android:layout_marginStart="10dp"
+            android:textColor="#ffff"
+            android:textSize="14sp"
+            android:text="00:00s"
+            tools:visibility="visible"
+            android:visibility="gone" />
 
 
-    <TextView
-        android:id="@+id/txt_end_duration"
-        style="@style/TxtRgStyle22"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="40dp"
-        android:textColor="#80FFFFFF"
-        android:textSize="14sp"
-        android:text="00:10s"
-        tools:visibility="visible"
-        android:visibility="gone" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/txt_end_duration"
+            style="@style/TxtRgStyle22"
+            android:layout_marginEnd="10dp"
+            android:textColor="#ffff"
+            android:textSize="14sp"
+            android:text="00:10s"
+            tools:visibility="visible"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/player_view_lib"
+        style="@style/FView"
+        android:layout_gravity="center_vertical"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="center"
+        app:use_controller="false" />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
