@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
@@ -49,6 +50,7 @@ import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.ProgressHolder;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.VideoEncoderSettings;
 
@@ -683,13 +685,43 @@ import java.util.concurrent.Executors;
                                                             .build()
                                             ).build())
                             .build();
+
+            transformer.getProgress(new ProgressHolder());
             transformer.start(editedMediaItem, outputPath);
+
+            ProgressHolder progressHolder = new ProgressHolder();
+
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            if(progressRunnable!=null){
+                mainHandler.removeCallbacks(progressRunnable);
+            }
+            progressRunnable = new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        @Transformer.ProgressState int progressState = transformer.getProgress(progressHolder);
+                        if (progressState == Transformer.PROGRESS_STATE_AVAILABLE) {
+                            String progress = getString(R.string.txt_trimming_video)+ " "+progressHolder.progress+"%"; // This is the percentage (0-100)
+                            if (txtProgress!=null){
+                                txtProgress.setText(progress);
+                            }
+                        }
+                        if (progressState != Transformer.PROGRESS_STATE_NOT_STARTED) {
+                            mainHandler.postDelayed(this, 300); // Repeat after 500ms
+                        }
+                    } catch (Exception e) {
+                        Log.e("TAG", "run: ", e);
+                    }
+                }
+            };
+            mainHandler.post(progressRunnable); // Start the periodic update
         } else
             Toast.makeText(this, getString(R.string.txt_smaller) + " " + TrimmerUtils.getLimitedTimeFormatted(maxToGap), Toast.LENGTH_SHORT).show();
     }
 
     Transformer transformer;
-
+    Runnable progressRunnable;
     Transformer.Listener transformerListener =
             new Transformer.Listener() {
                 @Override
@@ -767,12 +799,15 @@ import java.util.concurrent.Executors;
         openFileLocationDialog.show();
     }
 
+    private TextView txtProgress;
     private void showProcessingDialog() {
         try {
             dialog = new Dialog(this);
             dialog.setCancelable(false);
             dialog.setContentView(R.layout.alert_convert);
             TextView txtCancel = dialog.findViewById(R.id.txt_cancel);
+            txtProgress = dialog.findViewById(R.id.txt_process);
+
             dialog.setCancelable(false);
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             txtCancel.setOnClickListener(v -> {
