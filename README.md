@@ -64,7 +64,7 @@ allprojects {
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
           .setHideSeekBar(true)
-          .disableCompression()   // enabled by default
+          .disableCompression()   // to disable compression ui. enabled by default
           .start(this,startForResult);
 ```
 
