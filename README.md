@@ -107,7 +107,7 @@ TrimVideo.activity(videoUri)
 -keep interface com.gowtham.library** { *; }
 ```
 
-Development roadmap:
+## Development roadmap:
 
 1. Currently, compression only reduces the bitRate to reduce the file size. converting video to the selected resolution is in under development.
 
