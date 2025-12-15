@@ -14,6 +14,7 @@ fun fromDisplayName(name: String): VideoRes? =
 
 
 fun getVideoResNames(context: Activity, inputUri: Uri): List<String> {
+
     val wh = TrimmerUtils.getVideoRes(context, inputUri)
     val inputRes = TrimmerUtils.classifyResolution(wh!!.first!!, wh.second!!)
     return if (inputRes== VideoRes.LOWER_SD){
