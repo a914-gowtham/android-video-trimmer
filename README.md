@@ -1,12 +1,12 @@
 [![](https://jitpack.io/v/jZAIKO/android-video-trimmer.svg)](https://jitpack.io/#jZAIKO/android-video-trimmer)
 [![](https://jitpack.io/v/a914-gowtham/android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/android-video-trimmer)
 
-### Starting from latest version 1.8.0 this library is using [media3](https://developer.android.com/media/media3/transformer/transformations) for media transcoding. Previously it was using [ffmpeg](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file) which is deprecated now.
+### Starting from 1.8.0 this library is using [media3](https://developer.android.com/media/media3/transformer/transformations) for media transcoding. Previously it was using [ffmpeg](https://github.com/arthenica/ffmpeg-kit?tab=readme-ov-file) which is deprecated now.
 
 
 # Android-video-trimmer
 
-##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://github.com/a914-gowtham/android-video-trimmer/releases) 
+##### Helps to trim local videos with many customizations on Android applications using exoplayer2 and FFmpeg [Demo app](https://github.com/a914-gowtham/android-video-trimmer/releases/1.8.1) 
 
 ![](https://github.com/a914-gowtham/Android-video-trimmer/blob/master/demo.gif)
 
@@ -19,7 +19,7 @@
  ```gradle
  // replace x.y.z with latest available jitpack version
  dependencies {
-    implementation 'com.github.a914-gowtham:android-video-trimmer:1.8.0'
+    implementation 'com.github.a914-gowtham:android-video-trimmer:x.y.z'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -64,7 +64,7 @@ allprojects {
 ```java
 TrimVideo.activity(String.valueOf(videoUri))
           .setHideSeekBar(true)
-          .disableCompression()   // enabled by default
+          .disableCompression()   // to disable compression ui. enabled by default
           .start(this,startForResult);
 ```
 
@@ -106,6 +106,10 @@ TrimVideo.activity(videoUri)
 -keep class com.gowtham.library** { *; }
 -keep interface com.gowtham.library** { *; }
 ```
+
+## Development roadmap:
+
+1. Currently, compression only reduces the bitRate to reduce the file size. converting video to the selected resolution is in under development.
 
 ## Compatibility
   
