@@ -83,6 +83,7 @@ import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimVideoOptions;
 import com.gowtham.library.utils.TrimmerUtils;
 import com.gowtham.library.utils.VideoRes;
+import com.gowtham.library.utils.VideoResKt;
 import com.gowtham.library.utils.ViewUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -162,7 +163,7 @@ import java.util.concurrent.Executors;
     private CustomProgressView progressView;
     private String fileName;
 
-    private TextView resChangeSpinner, txtFileSize;
+    private TextView resChangeSpinner;
     private boolean isCompressionEnabled;
 
     @Override
@@ -238,7 +239,6 @@ import java.util.concurrent.Executors;
         ImageView imageNine = findViewById(R.id.image_nine);
         ImageView imageTen = findViewById(R.id.image_ten);
         resChangeSpinner= findViewById(R.id.txt_change_res);
-        txtFileSize= findViewById(R.id.txt_file_size);
 
         View viewThumbnails = findViewById(R.id.view_thumbnails);
 
@@ -359,7 +359,6 @@ import java.util.concurrent.Executors;
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             Log.e("TAG", "showResolutionMenu: "+menuItem.getTitle().toString());
             selectedRes = fromDisplayName(menuItem.getTitle().toString());
-
             anchorView.setText(selectedRes.getDisplayName());
             return true;
         });
@@ -658,12 +657,33 @@ import java.util.concurrent.Executors;
 
             Pair<Integer, Integer> videoRes = TrimmerUtils.getVideoRes(this, fileUri);
 
-            int width= videoRes.first;
-            int height= videoRes.second;
+            int originalWidth= videoRes.first;
+            int originalHeight= videoRes.second;
+
+            float reduceRatio = VideoResKt.getDownScaleRatio(
+                    this, fileUri, selectedRes
+            );
+            Log.e("TAG", "trimVideo: reduceRatio: "+reduceRatio);
+            // originalwidth= 720 and selectedRes= 360
+            // reduceRatio would be 0.5f
+            // diffWidth = originalwidth * 0.5f = 360
+            // finalWidth = originalwidth - diffWidth = 360
+            int finalWidth= originalWidth;
+            int finalHeight= originalHeight;
+
+            if(reduceRatio<1f && reduceRatio>0f){
+                float diffWidth = originalWidth * reduceRatio;
+                float diffHeight = originalHeight * reduceRatio;
+                finalWidth = Math.round(originalWidth-diffWidth);
+                finalHeight = Math.round(originalHeight-diffHeight);
+            }
+
+            Log.e("TAG", "trimVideo: originalVideoRes: "+originalWidth+"x"+originalHeight);
+            Log.e("TAG", "trimVideo: reducedVideoRes: "+finalWidth+"x"+finalHeight);
             EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem)
                     .setEffects(new Effects(ImmutableList.of(),
-                            ImmutableList.of(Presentation.createForWidthAndHeight(width, height,
-                                    Presentation.LAYOUT_SCALE_TO_FIT))))
+                            ImmutableList.of(Presentation.createForWidthAndHeight(finalWidth,
+                                    finalHeight, Presentation.LAYOUT_SCALE_TO_FIT))))
                     .build();
 
 

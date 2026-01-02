@@ -11,6 +11,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.core.app.ActivityCompat;
@@ -21,6 +22,7 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -247,4 +249,43 @@ public class TrimmerUtils {
             return VideoRes.LOWER_SD;
         }
     }
+
+    public static String calculateVideoSize(Activity activity, Uri fileUri, int durationInSec) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+        try {
+            retriever.setDataSource(activity, fileUri);
+            // Bitrate in bits/sec (audio + video)
+            String bitrateStr =
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
+
+            if (bitrateStr == null) {
+                Log.e("VideoSize", "Bitrate not available");
+                return "";
+            }
+
+            long bitrate = Long.parseLong(bitrateStr);
+
+            // File size in bytes
+            long fileSizeBytes = (bitrate * durationInSec) / 8;
+
+            double fileSizeMB = fileSizeBytes / (1024.0 * 1024.0);
+
+            Log.d("VideoSize", "Duration (sec): " + durationInSec);
+            Log.d("VideoSize", "Bitrate (bps): " + bitrate);
+            Log.d("VideoSize", "Estimated Size (MB): " + fileSizeMB);
+
+            return fileSizeMB+" mb";
+        } catch (Exception e) {
+            Log.d("VideoSize", "",e);
+        } finally {
+            try {
+                retriever.release();
+            } catch (IOException e) {
+                Log.d("VideoSize", "",e);
+            }
+        }
+        return "";
+    }
+
 }

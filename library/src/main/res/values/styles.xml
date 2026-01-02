@@ -24,6 +24,12 @@
          <item name="android:background">@color/popup_menu_background_dark</item>
     </style>
 
+    <style name="ToolBarSubtitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    
     <style name="AppTheme.PopupMenu.Old" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
         <item name="android:textColor">@color/popup_menu_text_color_dark</item>
     </style>

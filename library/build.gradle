@@ -1,14 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
 
 android {
-
-    packagingOptions {
-        pickFirst 'lib/x86/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
-        pickFirst 'lib/arm64-v8a/libc++_shared.so'
-    }
 
     defaultConfig {
         minSdkVersion 24
@@ -34,8 +29,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     namespace 'com.gowtham.library'
 
@@ -54,7 +49,4 @@ dependencies {
 
     implementation("androidx.media3:media3-transformer:1.8.0")
 
-}
-repositories {
-    mavenCentral()
 }

@@ -3,6 +3,7 @@ package com.gowtham.library.utils
 import android.app.Activity
 import android.net.Uri
 import android.util.Log
+import kotlin.math.min
 
 enum class VideoRes(val displayName: String, val res: Int) {
     LOWER_SD("<360p", -1), SD_360("360p", 360),
@@ -38,10 +39,10 @@ fun getDownScaleRatio(
 ): Float {
     val widthHeightPair = TrimmerUtils.getVideoRes(context, fileUri)
 
-    val resolution = widthHeightPair.first.coerceAtMost(widthHeightPair.second)
+    val resolution = min(widthHeightPair.first, widthHeightPair.second)
     Log.e("TAG", "trimVideo: resolution: "+resolution);
     Log.e("TAG", "trimVideo: targetRes: "+targetRes.res);
-    if (resolution== targetRes.res){
+    if (resolution== targetRes.res || targetRes== VideoRes.LOWER_SD){
         return 1f
     }else{
         val value= resolution-targetRes.res.toFloat()
