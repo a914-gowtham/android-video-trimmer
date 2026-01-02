@@ -2,6 +2,7 @@ package com.gowtham.library.utils
 
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 
 enum class VideoRes(val displayName: String, val res: Int) {
     LOWER_SD("<360p", -1), SD_360("360p", 360),
@@ -26,36 +27,27 @@ fun getVideoResNames(context: Activity, inputUri: Uri): List<String> {
                 list.add(res.displayName)
             }
         }
-        return list
+        return list.reversed()
     }
 }
 
-/*
-fun downScaleResolution(
+fun getDownScaleRatio(
     context: Activity,
     fileUri: Uri,
     targetRes: VideoRes
 ): Float {
-    val wh = TrimmerUtils.getVideoRes(context, fileUri)
+    val widthHeightPair = TrimmerUtils.getVideoRes(context, fileUri)
 
-    val resolution = wh.first.coerceAtLeast(wh.second)
-
-    if (resolution >= 1920) {
-        if(targetRes== VideoRes.FULL_HD){
-
-        }
-    } else if (resolution >= 1280) {
-        return VideoRes.HD;
-    } else if (resolution >= 854) {
-        return VideoRes.SD;
-    } else if (resolution >= 640) {  // 640x360
-        return VideoRes.SD_360;
-    } else {
-        return VideoRes.LOWER_SD;
+    val resolution = widthHeightPair.first.coerceAtMost(widthHeightPair.second)
+    Log.e("TAG", "trimVideo: resolution: "+resolution);
+    Log.e("TAG", "trimVideo: targetRes: "+targetRes.res);
+    if (resolution== targetRes.res){
+        return 1f
+    }else{
+        val value= resolution-targetRes.res.toFloat()
+        return (value/ resolution).coerceIn(0f, 1f)
     }
-    return scaleFactorHeight
 }
-*/
 
 
 //
