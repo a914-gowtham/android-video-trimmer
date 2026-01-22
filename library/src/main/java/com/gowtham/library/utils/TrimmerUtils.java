@@ -142,6 +142,11 @@ public class TrimmerUtils {
             String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
             int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
             int h = Integer.parseInt(height);
+            int rotation = TrimmerUtils.getVideoRotation(context, videoUri);
+            // Swap width and height if video is rotated 90 or 270 degrees
+            if (rotation == 90 || rotation == 270) {
+                return new Pair<>(h, w);
+            }
             return new Pair<>(w, h);
         } catch (Exception e) {
             e.printStackTrace();
