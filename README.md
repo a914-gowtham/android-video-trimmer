@@ -109,7 +109,8 @@ TrimVideo.activity(videoUri)
 
 ## Development roadmap:
 
-1. Currently, compression only reduces the bitRate to reduce the file size. converting video to the selected resolution is in under development.
+1.  ~~Currently, compression only reduces the bitRate to reduce the file size. converting video to the selected resolution is in under development~~ - DONE
+2. Showing file size estimation in toolbar subtitle - to be worked
 
 ## Compatibility
   
